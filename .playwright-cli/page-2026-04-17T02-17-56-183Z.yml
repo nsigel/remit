@@ -1,0 +1,63 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - link "Remit" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - generic [ref=e6]: University View
+        - button "Toggle theme" [ref=e7]: Dark
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - heading "Meridian University" [level=1] [ref=e10]
+        - paragraph [ref=e11]: 0x4d657269...0000
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: Total Received
+          - generic [ref=e15]: $45,000.00
+        - generic [ref=e16]:
+          - generic [ref=e17]: Payments
+          - generic [ref=e18]: "3"
+        - generic [ref=e19]:
+          - generic [ref=e20]: Students
+          - generic [ref=e21]: "31"
+        - generic [ref=e22]:
+          - generic [ref=e23]: Avg. Settlement
+          - generic [ref=e24]: 0.25s
+      - generic [ref=e25]:
+        - generic [ref=e26]: 3 paid statements
+        - generic [ref=e27]: 90 outstanding statements
+      - generic [ref=e28]:
+        - heading "Payments" [level=2] [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - generic [ref=e33]: Payments Student 1776391508901-fvsw0q
+              - generic [ref=e34]:
+                - text: 0.30s ·
+                - link "0xe15dc1c9..." [ref=e35] [cursor=pointer]:
+                  - /url: https://testnet.arcscan.app/tx/0xe15dc1c908f686f9bb9f0563703737e4a0fae7c830da0b08aad5f1c7efbd3298
+            - generic [ref=e36]:
+              - generic [ref=e37]: $15,000.00
+              - generic [ref=e38]: Final
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: Payments Student 1776384044411-4b6q98
+              - generic [ref=e42]:
+                - text: 0.21s ·
+                - link "0xb360366c..." [ref=e43] [cursor=pointer]:
+                  - /url: https://testnet.arcscan.app/tx/0xb360366c55bc56a0484d2247b4775164f9a73cd0b12c5e79ab7077742824bd39
+            - generic [ref=e44]:
+              - generic [ref=e45]: $15,000.00
+              - generic [ref=e46]: Final
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]: Payments Student 1776384006729-5ng9u1
+              - generic [ref=e50]:
+                - text: 0.26s ·
+                - link "0x0afd07a0..." [ref=e51] [cursor=pointer]:
+                  - /url: https://testnet.arcscan.app/tx/0x0afd07a0a371178ee0b435aa6d5382cbd3abc9ac61cbd58b8bfdfacdee7bc6aa
+            - generic [ref=e52]:
+              - generic [ref=e53]: $15,000.00
+              - generic [ref=e54]: Final
+      - generic [ref=e55]: "Average settlement: 0.25s. Traditional ACH/wire: 1–5 business days."
+  - alert [ref=e56]

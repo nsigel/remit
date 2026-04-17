@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+	--font-sans:
+		var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-serif:
+		var(--font-instrument-serif), "Georgia", "Times New Roman", serif;
+
+	--color-bg: var(--bg);
+	--color-bg-secondary: var(--bg-secondary);
+	--color-text: var(--fg);
+	--color-text-secondary: var(--fg-secondary);
+	--color-border: var(--border);
+	--color-accent: var(--accent);
+	--color-success: var(--success);
+	--color-danger: var(--danger);
+}
+
+:root {
+	--bg: #ffffff;
+	--bg-secondary: #f7f7f7;
+	--fg: #0a0a0a;
+	--fg-secondary: #6b6b6b;
+	--border: #e5e5e5;
+	--accent: #0052ff;
+	--success: #00a67e;
+	--danger: #dc2626;
+}
+
+.dark {
+	--bg: #0a0a0a;
+	--bg-secondary: #161616;
+	--fg: #fafafa;
+	--fg-secondary: #999999;
+	--border: #262626;
+	--accent: #4d8aff;
+	--success: #34d399;
+	--danger: #ef4444;
+}
+
+html {
+	background-color: var(--bg);
+	color: var(--fg);
+}
+
+body {
+	min-height: 100dvh;
+}
+
+button:not(:disabled),
+a[href],
+[role="button"]:not([aria-disabled="true"]) {
+	cursor: pointer;
+}
+
+button:disabled {
+	cursor: not-allowed;
+}

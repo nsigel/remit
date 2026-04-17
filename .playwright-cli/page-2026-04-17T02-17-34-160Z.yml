@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - link "Remit" [ref=e4] [cursor=pointer]:
+        - /url: /dashboard
+      - link "Back" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+    - generic [ref=e6]:
+      - heading "Where are you depositing from?" [level=1] [ref=e7]
+      - generic [ref=e8]:
+        - button "Ethereum Domain 0" [ref=e9]:
+          - generic [ref=e10]: Ethereum
+          - generic [ref=e11]: Domain 0
+        - button "Base Domain 6" [ref=e12]:
+          - generic [ref=e13]: Base
+          - generic [ref=e14]: Domain 6
+        - button "Solana Domain 5" [ref=e15]:
+          - generic [ref=e16]: Solana
+          - generic [ref=e17]: Domain 5
+        - button "Arbitrum Domain 3" [ref=e18]:
+          - generic [ref=e19]: Arbitrum
+          - generic [ref=e20]: Domain 3
+        - button "OP Mainnet Domain 2" [ref=e21]:
+          - generic [ref=e22]: OP Mainnet
+          - generic [ref=e23]: Domain 2
+        - button "Polygon PoS Domain 7" [ref=e24]:
+          - generic [ref=e25]: Polygon PoS
+          - generic [ref=e26]: Domain 7
+      - textbox "Search 21 more chains..." [ref=e27]
+      - paragraph [ref=e28]: 21 additional chains via CCTP
+  - alert [ref=e29]

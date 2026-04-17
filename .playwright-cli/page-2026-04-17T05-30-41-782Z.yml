@@ -1,0 +1,10 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e19]: ✓
+      - heading "Wallet ready" [level=1] [ref=e20]
+      - paragraph [ref=e21]: Live on Arc.
+      - paragraph [ref=e22]: "0x1abcc0dbc1a814b14eb28bd1dcd5f9b452bb2d27"
+  - button "Open Next.js Dev Tools" [ref=e15] [cursor=pointer]:
+    - img [ref=e16]
+  - alert [ref=e9]

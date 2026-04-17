@@ -1,0 +1,856 @@
+[    4378ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:14537
+[    4670ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[    4744ms] [LOG] [Fast Refresh] done in 175ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[    7764ms] [LOG] %c >> mutation #1 %cstudent.create%c %O 
+    background-color: #c5a3fc;
+    color: black;
+    padding: 2px;
+   
+    background-color: #c5a3fc;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #c5a3fc;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: Object, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[    7920ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[    8305ms] [LOG] [Fast Refresh] done in 486ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[    9342ms] [LOG] %c << mutation #1 %cstudent.create%c %O 
+    background-color: #904dfc;
+    color: white;
+    padding: 2px;
+   
+    background-color: #904dfc;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #904dfc;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: Object, result: Object, elapsedMs: 1577, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[   10973ms] [LOG] %c >> query #2 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[   11040ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[   11097ms] [LOG] [Fast Refresh] done in 158ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[   11286ms] [LOG] %c << query #2 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 312, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[   11366ms] [WARNING] Image with src "http://localhost:3001/Arc_Icon_White.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3001/_next/static/chunks/03aae_next_dist_0ca34451._.js:968
+[   11368ms] [WARNING] Image with src "http://localhost:3001/Arc_Icon_Navay.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3001/_next/static/chunks/03aae_next_dist_0ca34451._.js:968
+[  263487ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  263911ms] [LOG] %c >> query #3 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  263935ms] [LOG] [Fast Refresh] done in 503ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  264305ms] [LOG] %c << query #3 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 391, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  269367ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  269658ms] [LOG] %c >> query #4 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  269664ms] [LOG] [Fast Refresh] done in 369ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  270182ms] [LOG] %c << query #4 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 522, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  351963ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  352454ms] [LOG] %c >> query #5 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  352462ms] [LOG] [Fast Refresh] done in 573ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  352835ms] [LOG] %c << query #5 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 380, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  448010ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  448610ms] [LOG] %c >> query #6 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  448623ms] [LOG] [Fast Refresh] done in 686ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  449091ms] [LOG] %c << query #6 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 478, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  474072ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  474221ms] [LOG] %c >> query #7 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  474248ms] [LOG] [Fast Refresh] done in 227ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  474872ms] [LOG] %c << query #7 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 641, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  523066ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  523317ms] [LOG] %c >> query #8 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  523324ms] [LOG] [Fast Refresh] done in 339ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  523651ms] [LOG] %c << query #8 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 332, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  526850ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  526919ms] [LOG] %c >> query #9 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  526932ms] [LOG] [Fast Refresh] done in 156ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  527326ms] [LOG] %c << query #9 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 403, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  696682ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  697371ms] [LOG] %c >> query #10 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  697389ms] [LOG] [Fast Refresh] done in 770ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  697953ms] [LOG] %c << query #10 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 579, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  707298ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  707808ms] [LOG] %c >> query #11 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  707818ms] [LOG] [Fast Refresh] done in 583ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  708112ms] [LOG] %c << query #11 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 302, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  923290ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  923965ms] [LOG] %c >> query #12 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  924034ms] [LOG] [Fast Refresh] done in 718ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  924482ms] [LOG] %c << query #12 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 510, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  934040ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  934945ms] [LOG] %c >> query #13 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  934964ms] [LOG] [Fast Refresh] done in 981ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  935643ms] [LOG] %c << query #13 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 695, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  947290ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  947519ms] [LOG] %c >> query #14 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  947531ms] [LOG] [Fast Refresh] done in 301ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  947881ms] [LOG] %c << query #14 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 361, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  960103ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[  960227ms] [LOG] %c >> query #15 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[  960238ms] [LOG] [Fast Refresh] done in 213ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[  960556ms] [LOG] %c << query #15 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 326, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1080932ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1081659ms] [LOG] %c >> query #16 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1081668ms] [LOG] [Fast Refresh] done in 807ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1081988ms] [LOG] %c << query #16 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 326, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1095980ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1096146ms] [LOG] %c >> query #17 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1096156ms] [LOG] [Fast Refresh] done in 254ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1096508ms] [LOG] %c << query #17 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 359, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1252285ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1253263ms] [LOG] %c >> query #18 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1253303ms] [LOG] [Fast Refresh] done in 998ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1253724ms] [LOG] %c << query #18 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 455, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1278321ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1278575ms] [LOG] %c >> query #19 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1278585ms] [LOG] [Fast Refresh] done in 343ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1278886ms] [LOG] %c << query #19 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 310, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1579424ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1580024ms] [LOG] %c >> query #20 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1580105ms] [LOG] [Fast Refresh] done in 621ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1580437ms] [LOG] %c << query #20 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 408, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1589089ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1589411ms] [LOG] %c >> query #21 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1589426ms] [LOG] [Fast Refresh] done in 413ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1589834ms] [LOG] %c << query #21 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 422, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1598707ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1598755ms] [LOG] %c >> query #22 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1598766ms] [LOG] [Fast Refresh] done in 132ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1599040ms] [LOG] %c << query #22 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 282, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1718137ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1718256ms] [LOG] [Fast Refresh] done in 220ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1718867ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:14537
+[ 1718906ms] [LOG] %c >> query #1 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1719193ms] [LOG] %c << query #1 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 287, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 1719243ms] [WARNING] Image with src "http://localhost:3001/Arc_Icon_Navay.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3001/_next/static/chunks/03aae_next_dist_0ca34451._.js:968
+[ 1719248ms] [WARNING] Image with src "http://localhost:3001/Arc_Icon_White.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3001/_next/static/chunks/03aae_next_dist_0ca34451._.js:968
+[ 1912158ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1912169ms] [LOG] [Fast Refresh] done in 112ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1912744ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1913307ms] [LOG] [Fast Refresh] done in 664ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 1913698ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 1914556ms] [LOG] [Fast Refresh] done in 953ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2030539ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2032285ms] [LOG] %c >> query #2 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2032300ms] [LOG] [Fast Refresh] done in 1802ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2033404ms] [LOG] %c << query #2 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 1115, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2053274ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2053774ms] [LOG] %c >> query #3 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2053807ms] [LOG] [Fast Refresh] done in 565ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2054171ms] [LOG] %c << query #3 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 393, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2159292ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2160067ms] ReferenceError: usePathname is not defined
+    at DashboardHeader (http://localhost:3001/_next/static/chunks/code_src_github_com_nsigel_remit-cc_remit_src_80ed809f._.js?id=%255Bproject%255D%252Fcode%252Fsrc%252Fgithub.com%252Fnsigel%252Fremit-cc%252Fremit%252Fsrc%252Fapp%252Fdashboard%252F_components%252Fdashboard-header.tsx+%255Bapp-client%255D+%2528ecmascript%2529:17:22)
+    at Object.react_stack_bottom_frame (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:13072:24)
+    at renderWithHooks (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:4091:24)
+    at updateFunctionComponent (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:5523:21)
+    at beginWork (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:6111:24)
+    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:886:74)
+    at performUnitOfWork (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:8298:97)
+    at workLoopSync (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:8190:40)
+    at renderRootSync (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:8173:13)
+    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:7932:56)
+    at performSyncWorkOnRoot (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:8890:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:8809:316)
+    at flushSyncWork$1 (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:8048:86)
+    at Object.scheduleRefresh (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:294:13)
+    at http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_79232f35._.js:391:33
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_79232f35._.js:384:38)
+    at applyUpdate (http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_79232f35._.js:878:31)
+    at http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_79232f35._.js:886:13
+[ 2160057ms] [LOG] [Fast Refresh] done in 827ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2160267ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2160453ms] [LOG] [Fast Refresh] done in 288ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2170042ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2170416ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:6282
+[ 2170455ms] [LOG] %c >> query #1 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2170480ms] [LOG] [Fast Refresh] done in 474ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2170689ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2171219ms] [LOG] [Fast Refresh] done in 631ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2171595ms] [ERROR] %c << query #1 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: TRPCClientError: Failed to fetch
+    at TRPCClientError.from (http://localhost:3001/_next/static/ch…, elapsedMs: 1139, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_next_dist_0ca34451._.js:2359
+[ 2171746ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:14537
+[ 2171815ms] [LOG] %c >> query #1 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2172130ms] [LOG] %c << query #1 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 315, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2172149ms] [WARNING] Image with src "http://localhost:3001/Arc_Icon_White.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3001/_next/static/chunks/03aae_next_dist_0ca34451._.js:968
+[ 2197964ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2198034ms] [LOG] [Fast Refresh] done in 171ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2219131ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2219293ms] [LOG] %c >> query #2 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2219305ms] [LOG] [Fast Refresh] done in 254ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2219656ms] [LOG] %c << query #2 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 361, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2313061ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[ 2313371ms] [LOG] %c >> query #3 %cstudent.dashboard%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468
+[ 2313378ms] [LOG] [Fast Refresh] done in 397ms @ http://localhost:3001/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[ 2313931ms] [LOG] %c << query #3 %cstudent.dashboard%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: undefined, result: Object, elapsedMs: 560, context: Object} @ http://localhost:3001/_next/static/chunks/03aae_86c65cbd._.js:2468

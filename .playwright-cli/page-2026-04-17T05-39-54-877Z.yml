@@ -1,0 +1,10 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Create your Arc wallet" [level=1] [ref=e4]
+      - generic [ref=e5]:
+        - generic [ref=e6]: Student name
+        - textbox "Student name" [ref=e7]:
+          - /placeholder: Alex Johnson
+        - button "Create wallet" [disabled] [ref=e8]
+  - alert [ref=e9]

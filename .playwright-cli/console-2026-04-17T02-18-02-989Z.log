@@ -1,0 +1,31 @@
+[     195ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[     402ms] [LOG] [Fast Refresh] done in 309ms @ http://localhost:3000/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[     503ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5949
+[     540ms] [LOG] [Fast Refresh] done in 137ms @ http://localhost:3000/_next/static/chunks/03aae_next_dist_client_0c36b3a9._.js:5809
+[    1070ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/03aae_next_dist_compiled_react-dom_017d3568._.js:14537
+[    1090ms] [LOG] %c >> query #1 %cinvoice.get%c %O 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+   
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #72e3ff;
+    color: black;
+    padding: 2px;
+  ; font-weight: normal; {input: Object, context: Object} @ http://localhost:3000/_next/static/chunks/03aae_86c65cbd._.js:2468
+[    1437ms] [LOG] %c << query #1 %cinvoice.get%c %O 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+   
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: bold; 
+    background-color: #3fb0d8;
+    color: white;
+    padding: 2px;
+  ; font-weight: normal; {input: Object, result: Object, elapsedMs: 347, context: Object} @ http://localhost:3000/_next/static/chunks/03aae_86c65cbd._.js:2468

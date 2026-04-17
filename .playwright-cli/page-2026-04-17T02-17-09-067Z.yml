@@ -1,0 +1,11 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Create your account" [level=1] [ref=e4]
+      - generic [ref=e5]:
+        - generic [ref=e6]: Your name
+        - textbox "Your name" [ref=e7]:
+          - /placeholder: Alex Johnson
+        - button "Get Started" [disabled] [ref=e8]
+      - paragraph [ref=e9]: No seed phrase. No gas tokens. Your wallet is created instantly on Arc at zero cost.
+  - alert [ref=e10]
