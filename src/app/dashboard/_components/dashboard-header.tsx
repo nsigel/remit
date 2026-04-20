@@ -8,15 +8,15 @@ type DashboardHeaderProps = {
 	subtitle?: string;
 };
 
-export function DashboardHeader({
-	rightSlot,
-	subtitle,
-}: DashboardHeaderProps) {
+export function DashboardHeader({ rightSlot, subtitle }: DashboardHeaderProps) {
 	return (
 		<header className="border-border border-b px-5 py-5 sm:px-8 sm:py-6">
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div className="space-y-1">
-					<Link className="cursor-pointer font-serif text-2xl" href="/dashboard">
+					<Link
+						className="cursor-pointer font-serif text-2xl"
+						href="/dashboard"
+					>
 						Remit
 					</Link>
 					{subtitle ? (

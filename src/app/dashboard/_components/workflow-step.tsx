@@ -1,14 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, LoaderCircle } from "lucide-react";
 import type { ReactNode } from "react";
 
 type WorkflowStepProps = {
 	title: string;
 	stepLabel: string;
 	state: "active" | "completed";
+	activeBadge?: "number" | "spinner";
 	summary?: ReactNode;
+	completedContent?: ReactNode;
 	action?: ReactNode;
 	children?: ReactNode;
 };
@@ -17,7 +19,9 @@ export function WorkflowStep({
 	title,
 	stepLabel,
 	state,
+	activeBadge = "number",
 	summary,
+	completedContent,
 	action,
 	children,
 }: WorkflowStepProps) {
@@ -36,6 +40,8 @@ export function WorkflowStep({
 					>
 						{state === "completed" ? (
 							<Check className="h-3.5 w-3.5" />
+						) : activeBadge === "spinner" ? (
+							<LoaderCircle className="h-3.5 w-3.5 animate-spin" />
 						) : (
 							<span className="font-medium text-[0.82rem] leading-none">
 								{stepCounter}
@@ -43,14 +49,12 @@ export function WorkflowStep({
 						)}
 					</span>
 					<div className="min-w-0">
-						<h3 className="text-base font-medium leading-tight sm:text-[1.05rem]">
+						<h3 className="font-medium text-base leading-tight sm:text-[1.05rem]">
 							{title}
 						</h3>
 					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					{action}
-				</div>
+				<div className="flex items-center gap-2">{action}</div>
 			</div>
 
 			<AnimatePresence initial={false} mode="wait">
@@ -67,6 +71,19 @@ export function WorkflowStep({
 							{children}
 						</div>
 					</motion.div>
+				) : completedContent ? (
+					<motion.div
+						animate={{ opacity: 1, height: "auto" }}
+						className="overflow-hidden"
+						exit={{ opacity: 0, height: 0 }}
+						initial={{ opacity: 0, height: 0 }}
+						key="completed-content"
+						transition={{ duration: 0.18, ease: "easeOut" }}
+					>
+						<div className="mt-3 rounded-[1.25rem] border border-text/10 bg-bg-secondary/60 px-4 py-3.5 sm:px-4.5 sm:py-4">
+							{completedContent}
+						</div>
+					</motion.div>
 				) : (
 					<motion.div
 						animate={{ opacity: 1, height: "auto" }}
@@ -76,7 +93,9 @@ export function WorkflowStep({
 						key="completed"
 						transition={{ duration: 0.18, ease: "easeOut" }}
 					>
-						<div className="mt-2 pl-10 text-sm text-text-secondary">{summary}</div>
+						<div className="mt-2 pl-10 text-sm text-text-secondary">
+							{summary}
+						</div>
 					</motion.div>
 				)}
 			</AnimatePresence>

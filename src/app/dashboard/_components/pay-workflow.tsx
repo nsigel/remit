@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Check, LoaderCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ARC } from "~/lib/constants";
 import { buildPaymentPlan } from "~/lib/payment-plan";
 import { api } from "~/trpc/react";
@@ -12,6 +12,7 @@ import {
 	buildPaymentPreviewSteps,
 	delay,
 	formatAmount,
+	formatBalance,
 	formatDate,
 	type PaymentFlowStep,
 	type PaymentStepStatus,
@@ -20,20 +21,20 @@ import {
 type PayWorkflowProps = {
 	canClose: boolean;
 	onClose: () => void;
+	onOpenDeposit: () => void;
 	onLockChange: (locked: boolean) => void;
 };
 
-type Stage = "preview" | "processing" | "receipt";
+type Stage = "review" | "processing" | "receipt";
 
 export function PayWorkflow({
 	canClose,
 	onClose,
+	onOpenDeposit,
 	onLockChange,
 }: PayWorkflowProps) {
 	const utils = api.useUtils();
-	const [stage, setStage] = useState<Stage>("preview");
-	const [reviewConfirmed, setReviewConfirmed] = useState(false);
-	const [pathConfirmed, setPathConfirmed] = useState(false);
+	const [stage, setStage] = useState<Stage>("review");
 	const [stepStatuses, setStepStatuses] = useState<
 		Record<string, PaymentStepStatus>
 	>({});
@@ -98,14 +99,23 @@ export function PayWorkflow({
 		paymentPlan,
 		invoice.university.name,
 	);
+	const walletStep =
+		paymentPlan.steps.find((step) => step.kind === "wallet") ?? null;
+	const swapSteps = paymentPlan.steps.filter((step) => step.kind === "swap");
 	const actionCount =
 		paymentPlan.steps.filter((step) => step.kind !== "wallet").length + 1;
+	const paymentDescription =
+		invoice.statementCount > 1
+			? `${invoice.statementCount} open statements will settle in one payment.`
+			: invoice.description;
 
 	const handlePay = async () => {
 		if (!paymentPlan.canPay || pay.isPending) return;
 
 		setStage("processing");
 		setErrorMessage(null);
+		setResult(null);
+		setStepStatuses({});
 		onLockChange(true);
 
 		try {
@@ -154,7 +164,10 @@ export function PayWorkflow({
 
 			await Promise.all([
 				utils.student.dashboard.invalidate(),
-				utils.invoice.get.invalidate({ id: "current" }),
+				utils.invoice.get.invalidate(
+					{ id: "current" },
+					{ refetchType: "none" },
+				),
 				utils.invoice.list.invalidate(),
 				utils.transaction.list.invalidate(),
 			]);
@@ -167,8 +180,9 @@ export function PayWorkflow({
 					? mutationError.message
 					: "Payment could not be completed.",
 			);
-			setStage("preview");
+			setStage("review");
 			setStepStatuses({});
+			setResult(null);
 			onLockChange(false);
 		}
 	};
@@ -179,104 +193,92 @@ export function PayWorkflow({
 			onClose={onClose}
 			title={`Pay ${invoice.university.name}`}
 		>
-			<WorkflowStep
-				action={
-					reviewConfirmed && stage === "preview" ? (
-						<button
-							className="cursor-pointer text-text-secondary text-xs transition-colors hover:text-text"
-							onClick={() => {
-								setReviewConfirmed(false);
-								setPathConfirmed(false);
-							}}
-							type="button"
-						>
-							Edit
-						</button>
-					) : undefined
-				}
-				state={reviewConfirmed || stage !== "preview" ? "completed" : "active"}
-				stepLabel="Step 1"
-				summary={
-					<div className="space-y-1">
-						<div className="flex items-center justify-between gap-4">
-							<span>Current balance</span>
-							<span className="font-medium text-text">
+			{stage === "review" ? (
+				<div className="rounded-[1.5rem] border border-text/10 bg-bg-secondary/60 px-4 py-4 sm:px-5 sm:py-5">
+					<div className="space-y-5 text-sm">
+						<div>
+							<div className="font-serif text-4xl leading-none sm:text-[3.1rem]">
 								${formatAmount(invoice.amount)}
-							</span>
+							</div>
+							<p className="mt-3 max-w-sm text-text-secondary">
+								{paymentDescription}
+							</p>
 						</div>
-						<div className="flex items-center justify-between gap-4">
-							<span>Statements</span>
-							<span className="font-medium text-text">
-								{invoice.statementCount}
-							</span>
-						</div>
-					</div>
-				}
-				title="Review balance"
-			>
-				<div className="space-y-4 text-sm">
-					<div>
-						<div className="font-serif text-4xl">
-							${formatAmount(invoice.amount)}
-						</div>
-						<p className="mt-2 text-text-secondary">{invoice.description}</p>
-					</div>
 
-					<div className="space-y-2 border-border border-y py-4">
-						<div className="flex justify-between gap-4">
-							<span className="text-text-secondary">Due date</span>
-							<span>{formatDate(invoice.dueDate)}</span>
+						<div className="space-y-2 border-border border-y py-4">
+							<ReviewRow label="Due date" value={formatDate(invoice.dueDate)} />
+							<ReviewRow
+								label="Statements"
+								value={invoice.statementCount.toString()}
+							/>
+							<ReviewRow
+								label="Network actions"
+								value={actionCount.toString()}
+							/>
 						</div>
-						<div className="flex justify-between gap-4">
-							<span className="text-text-secondary">Statements</span>
-							<span>{invoice.statementCount}</span>
-						</div>
-					</div>
 
-					<button
-						className="w-full cursor-pointer rounded-full bg-text py-3 font-medium text-bg transition-opacity hover:opacity-90"
-						onClick={() => setReviewConfirmed(true)}
-						type="button"
-					>
-						Review funding
-					</button>
-				</div>
-			</WorkflowStep>
+						{walletStep ? (
+							<div className="space-y-2">
+								<h3 className="font-serif text-2xl">Using existing balance</h3>
+								<div className="rounded-[1.25rem] border border-border bg-bg px-4 py-3">
+									<div className="flex items-start justify-between gap-4">
+										<div>
+											<div className="font-medium">
+												{formatBalance(walletStep.amount, walletStep.currency)}
+											</div>
+											<div className="mt-1 text-sm text-text-secondary">
+												Available in your Remit wallet on Arc.
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						) : null}
 
-			{reviewConfirmed || stage !== "preview" ? (
-				<WorkflowStep
-					action={
-						pathConfirmed && stage === "preview" ? (
-							<button
-								className="cursor-pointer text-text-secondary text-xs transition-colors hover:text-text"
-								onClick={() => setPathConfirmed(false)}
-								type="button"
-							>
-								Edit
-							</button>
-						) : undefined
-					}
-					state={pathConfirmed || stage !== "preview" ? "completed" : "active"}
-					stepLabel="Step 2"
-					summary={`Funding path ready with ${actionCount} ${
-						actionCount === 1 ? "action" : "actions"
-					}.`}
-					title="Review funding path"
-				>
-					<div className="space-y-4">
-						<div className="space-y-3 border-border border-y py-4">
-							{previewSteps.map((step) => (
-								<FlowActionRow
-									key={step.key}
-									stage="preview"
-									status="ready"
-									step={step}
-								/>
-							))}
-						</div>
+						{swapSteps.length > 0 ? (
+							<div className="space-y-3">
+								<div>
+									<h3 className="font-serif text-2xl">
+										Automatic conversion
+									</h3>
+									<p className="mt-1 text-sm text-text-secondary">
+										We&apos;ll convert only what this payment needs before
+										sending USDC on Arc.
+									</p>
+								</div>
+								<div className="space-y-3">
+									{swapSteps.map((step, index) => (
+										<div
+											className="rounded-[1.25rem] border border-border bg-bg px-4 py-3"
+											key={`${step.fromCurrency}-${index}`}
+										>
+											<div className="flex items-start justify-between gap-4">
+												<div>
+													<div className="font-medium">
+														{formatBalance(step.fromAmount, step.fromCurrency)} to{" "}
+														{formatBalance(step.toAmount, step.toCurrency)}
+													</div>
+													<div className="mt-1 text-sm text-text-secondary">
+														{formatRate(
+															step.effectiveRate,
+															step.fromCurrency,
+															step.toCurrency,
+														)}
+													</div>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						) : null}
+
+						{errorMessage ? (
+							<p className="text-danger">{errorMessage}</p>
+						) : null}
 
 						{!paymentPlan.canPay ? (
-							<p className="text-danger text-sm">
+							<p className="text-danger">
 								Need ${formatAmount(paymentPlan.shortfall)} more in payment
 								power.
 							</p>
@@ -284,66 +286,31 @@ export function PayWorkflow({
 
 						<button
 							className="w-full cursor-pointer rounded-full bg-text py-3 font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-							disabled={!paymentPlan.canPay}
-							onClick={() => setPathConfirmed(true)}
-							type="button"
-						>
-							Continue
-						</button>
-					</div>
-				</WorkflowStep>
-			) : null}
-
-			{pathConfirmed || stage !== "preview" ? (
-				<WorkflowStep
-					state={stage === "preview" ? "active" : "completed"}
-					stepLabel="Step 3"
-					summary={`Confirmed ${actionCount} ${
-						actionCount === 1 ? "action" : "actions"
-					} for ${invoice.university.name}.`}
-					title="Confirm payment"
-				>
-					<div className="space-y-4 text-sm">
-						<div className="space-y-2 border-border border-y py-4">
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">University</span>
-								<span>{invoice.university.name}</span>
-							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Network actions</span>
-								<span>{actionCount}</span>
-							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Arc fee</span>
-								<span>{ARC.networkFee} each</span>
-							</div>
-						</div>
-
-						{errorMessage ? (
-							<p className="text-danger">{errorMessage}</p>
-						) : null}
-
-						<button
-							className="w-full cursor-pointer rounded-full bg-text py-3 font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-							disabled={
-								!paymentPlan.canPay || pay.isPending || stage === "processing"
+							disabled={paymentPlan.canPay ? pay.isPending : false}
+							onClick={
+								paymentPlan.canPay
+									? handlePay
+									: () => {
+											setErrorMessage(null);
+											onOpenDeposit();
+										}
 							}
-							onClick={handlePay}
 							type="button"
 						>
-							{stage === "processing" ? "Processing payment..." : "Pay balance"}
+							{paymentPlan.canPay ? "Confirm payment" : "Add funds"}
 						</button>
 					</div>
-				</WorkflowStep>
+				</div>
 			) : null}
 
-			{stage !== "preview" ? (
+			{stage !== "review" ? (
 				<WorkflowStep
+					activeBadge="spinner"
 					state={stage === "processing" ? "active" : "completed"}
-					stepLabel="Step 4"
+					stepLabel="Step 1"
 					summary="All on-chain actions confirmed."
 					title={
-						stage === "processing" ? "Processing actions" : "Actions complete"
+						stage === "processing" ? "Processing payment" : "Payment complete"
 					}
 				>
 					<div className="space-y-3 border-border border-y py-4">
@@ -360,7 +327,7 @@ export function PayWorkflow({
 			) : null}
 
 			{stage === "receipt" && result ? (
-				<WorkflowStep state="active" stepLabel="Step 5" title="Payment final">
+				<WorkflowStep state="active" stepLabel="Step 2" title="Payment final">
 					<div className="space-y-4 text-sm">
 						<div className="rounded-3xl bg-success/8 px-4 py-4">
 							<div className="font-serif text-3xl">
@@ -418,6 +385,15 @@ export function PayWorkflow({
 	);
 }
 
+function ReviewRow({ label, value }: { label: string; value: string }) {
+	return (
+		<div className="flex justify-between gap-4">
+			<span className="text-text-secondary">{label}</span>
+			<span>{value}</span>
+		</div>
+	);
+}
+
 function FlowActionRow({
 	stage,
 	status,
@@ -445,7 +421,9 @@ function FlowActionRow({
 				</span>
 				<div className="min-w-0 flex-1">
 					<div className="font-medium leading-tight">{step.title}</div>
-					<div className="mt-0.5 text-sm text-text-secondary">{step.detail}</div>
+					<div className="mt-0.5 text-sm text-text-secondary">
+						{step.detail}
+					</div>
 				</div>
 			</div>
 
@@ -479,4 +457,11 @@ function rowStatusIconClassName(status: PaymentStepStatus, stage: Stage) {
 		return "mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-text/15 bg-bg-secondary text-text";
 	}
 	return "mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full border border-border bg-bg text-text-secondary/70";
+}
+
+function formatRate(rate: number, fromCurrency: string, toCurrency: string) {
+	return `1 ${fromCurrency} = ${rate.toLocaleString("en-US", {
+		minimumFractionDigits: 4,
+		maximumFractionDigits: 4,
+	})} ${toCurrency}`;
 }

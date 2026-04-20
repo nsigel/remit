@@ -27,12 +27,8 @@ test.describe("Remit end-to-end flows", () => {
 		await expect(
 			page.getByRole("heading", { name: "Statements" }),
 		).toBeVisible();
-		await expect(
-			page.getByRole("button", { name: "Deposit" }),
-		).toBeVisible();
-		await expect(
-			page.getByRole("button", { name: "Add funds" }),
-		).toBeVisible();
+		await expect(page.getByRole("button", { name: "Deposit" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Add funds" })).toBeVisible();
 		await expect(page.getByText("USDC", { exact: true })).toBeVisible();
 		await expect(page.getByText("EURC", { exact: true })).toBeVisible();
 		await expect(page.getByText("JPYC", { exact: true })).toBeVisible();
@@ -60,29 +56,41 @@ test.describe("Remit end-to-end flows", () => {
 
 		const panel = page.locator("aside");
 		await panel.getByRole("button", { name: /Base/ }).click();
-		await expect(panel.getByText("Chain")).toBeVisible();
+		await expect(
+			panel.getByRole("heading", { name: "Choose currency" }),
+		).toBeVisible();
 		await panel.getByRole("button", { name: "EURC" }).click();
 		await panel.locator('input[type="number"]').fill("5000");
 		await panel.getByRole("button", { name: "Continue" }).click();
+		await expect(
+			panel.getByText("Deposit in original currency", { exact: true }),
+		).toBeVisible();
 		await panel.getByRole("button", { name: "Deposit funds" }).click();
 
-		await expect(panel.getByText("Approve on Base")).toBeVisible();
+		await expect(panel.getByText("CCTP Bridge")).toBeVisible();
+		await expect(
+			panel.getByText("StableFX Swap", { exact: true }),
+		).toBeVisible();
+		await expect(panel.getByText(/1 EURC =/)).toBeVisible();
+		await expect(
+			panel.getByRole("heading", { name: "Deposit complete" }),
+		).toBeVisible({ timeout: 35_000 });
 		await expect(
 			panel.getByRole("heading", { name: "Funds arrived" }),
-		).toBeVisible({ timeout: 35_000 });
-		await expect(panel.getByText("5,000.00 EURC")).toBeVisible();
+		).toHaveCount(0);
+		await expect(panel.getByText("Saved against bank FX")).toBeVisible();
+		await expect(panel.getByText("View transaction")).toBeVisible();
 
 		await panel.getByRole("button", { name: "Close" }).click();
 		await expect(page).toHaveURL(/\/dashboard$/);
-		await expect(page.getByText("EURC", { exact: true })).toBeVisible();
-		await expect(
-			page.getByText("€5,000.00 EURC", { exact: true }),
-		).toBeVisible();
 		await expect(page.getByText("Deposit from Base")).toBeVisible();
-		await expect(page.getByText("+$5,000.00")).toBeVisible();
+		await expect(page.getByText("Settled in USDC via StableFX")).toBeVisible();
+		await expect(page.getByText(/\+\$\d{1,3}(,\d{3})*\.\d{2}/)).toBeVisible();
 	});
 
-	test("credits a JPYC deposit into wallet balances", async ({ page }) => {
+	test("credits a JPYC deposit into wallet balances when swap is opted out", async ({
+		page,
+	}) => {
 		const studentName = uniqueStudentName("JPYC");
 
 		await createStudentFromDemo(page, studentName);
@@ -90,10 +98,61 @@ test.describe("Remit end-to-end flows", () => {
 			chainName: "Base",
 			amount: "5000",
 			currency: "JPYC",
+			depositInOriginalCurrency: true,
 		});
 
-		await expect(page.getByText("¥5,000.00", { exact: true })).toBeVisible();
+		await expect(
+			page.locator("main").getByText("¥5,000", { exact: true }).first(),
+		).toBeVisible();
 		await expect(page.getByText("Deposit from Base")).toBeVisible();
+	});
+
+	test("skips the swap option for USDC deposits", async ({ page }) => {
+		const studentName = uniqueStudentName("USDC");
+
+		await createStudentFromDemo(page, studentName);
+		await page.getByRole("button", { name: "Deposit" }).click();
+		await expect(
+			page.getByRole("heading", { name: "Deposit funds" }),
+		).toBeVisible();
+
+		const panel = page.locator("aside");
+		await panel.getByRole("button", { name: /Base/ }).click();
+		await panel.getByRole("button", { name: "USDC" }).click();
+		await panel.locator('input[type="number"]').fill("5000");
+		await panel.getByRole("button", { name: "Continue" }).click();
+		await expect(
+			panel.getByText("Deposit in original currency", { exact: true }),
+		).toHaveCount(0);
+		await panel.getByRole("button", { name: "Deposit funds" }).click();
+		await expect(panel.getByText("StableFX Swap", { exact: true })).toHaveCount(
+			0,
+		);
+		await expect(
+			panel.getByRole("heading", { name: "Deposit complete" }),
+		).toBeVisible({ timeout: 35_000 });
+	});
+
+	test("uses the Arc credit step before StableFX on Arc-source deposits", async ({
+		page,
+	}) => {
+		const studentName = uniqueStudentName("Arc");
+
+		await createStudentFromDemo(page, studentName);
+		await page.getByRole("button", { name: "Deposit" }).click();
+		const panel = page.locator("aside");
+		await panel.getByRole("button", { name: /Arc/ }).click();
+		await panel.getByRole("button", { name: "EURC" }).click();
+		await panel.locator('input[type="number"]').fill("100");
+		await panel.getByRole("button", { name: "Continue" }).click();
+		await panel.getByRole("button", { name: "Deposit funds" }).click();
+		await expect(panel.getByText("Arc Credit")).toBeVisible();
+		await expect(
+			panel.getByText("StableFX Swap", { exact: true }),
+		).toBeVisible();
+		await expect(
+			panel.getByRole("heading", { name: "Deposit complete" }),
+		).toBeVisible({ timeout: 35_000 });
 	});
 
 	test("opens the deposit workflow inline when payment power is insufficient", async ({
@@ -120,18 +179,23 @@ test.describe("Remit end-to-end flows", () => {
 			chainName: "Solana",
 			amount: "22500",
 			currency: "EURC",
+			depositInOriginalCurrency: true,
 		});
 
+		await expect(
+			page.getByRole("button", { name: "Pay $22,500.00" }),
+		).toBeVisible();
 		await page.getByRole("button", { name: "Pay $22,500.00" }).click();
 		await expect(
 			page.getByRole("heading", { name: "Pay Meridian University" }),
 		).toBeVisible();
 
 		const panel = page.locator("aside");
-		await expect(panel.getByText("Convert EURC to USDC")).toBeVisible();
-		await panel.getByRole("button", { name: "Continue" }).click();
-		await panel.getByRole("button", { name: "Continue" }).click();
-		await panel.getByRole("button", { name: "Pay balance" }).click();
+		await expect(
+			panel.getByRole("heading", { name: "Automatic conversion" }),
+		).toBeVisible();
+		await expect(panel.getByRole("button", { name: "Confirm payment" })).toBeVisible();
+		await panel.getByRole("button", { name: "Confirm payment" }).click();
 
 		await expect(
 			panel.getByRole("heading", { name: "Payment final" }),
@@ -168,7 +232,7 @@ test.describe("Remit end-to-end flows", () => {
 		const panel = page.locator("aside");
 		await panel.getByRole("button", { name: /Base/ }).click();
 		await expect(
-			panel.getByRole("heading", { name: "Select currency" }),
+			panel.getByRole("heading", { name: "Choose currency" }),
 		).toBeVisible();
 
 		await page.getByRole("button", { name: "Pay $22,500.00" }).click();
@@ -178,6 +242,59 @@ test.describe("Remit end-to-end flows", () => {
 		await expect(
 			page.getByRole("heading", { name: "Deposit funds" }),
 		).toHaveCount(0);
+	});
+
+	test("pays the current balance in one step when already funded in USDC", async ({
+		page,
+	}) => {
+		const studentName = uniqueStudentName("USDCPay");
+
+		await createStudentFromDemo(page, studentName);
+		await completeDeposit(page, {
+			chainName: "Base",
+			amount: "22500",
+			currency: "USDC",
+		});
+
+		await page.getByRole("button", { name: "Pay $22,500.00" }).click();
+		const panel = page.locator("aside");
+
+		await expect(
+			panel.getByRole("heading", { name: "Automatic conversion" }),
+		).toHaveCount(0);
+		await expect(panel.getByText("Using existing balance")).toBeVisible();
+		await panel.getByRole("button", { name: "Confirm payment" }).click();
+
+		await expect(
+			panel.getByRole("heading", { name: "Payment final" }),
+		).toBeVisible({ timeout: 10_000 });
+	});
+
+	test("keeps the standalone swap workflow available for manual conversions", async ({
+		page,
+	}) => {
+		const studentName = uniqueStudentName("ManualSwap");
+
+		await createStudentFromDemo(page, studentName);
+		await completeDeposit(page, {
+			chainName: "Base",
+			amount: "500",
+			currency: "EURC",
+			depositInOriginalCurrency: true,
+		});
+
+		await page.getByRole("button", { name: "Swap" }).click();
+		const panel = page.locator("aside");
+
+		await expect(page.getByRole("heading", { name: "Swap funds" })).toBeVisible();
+		await expect(panel.getByRole("button", { name: "EURC" })).toBeVisible();
+		await panel.locator('input[type="text"]').fill("100");
+		await panel.getByRole("button", { name: "Continue" }).click();
+		await panel.getByRole("button", { name: "Swap funds" }).click();
+
+		await expect(
+			panel.getByRole("heading", { name: "Swap complete" }),
+		).toBeVisible({ timeout: 10_000 });
 	});
 
 	test("stacks the workflow beneath the dashboard summary on mobile without overflow", async ({
@@ -221,7 +338,7 @@ async function createStudentFromDemo(page: Page, studentName: string) {
 
 async function createStudent(page: Page, studentName: string) {
 	await expect(
-		page.getByRole("heading", { name: "Create your Arc wallet" }),
+		page.getByRole("heading", { name: "Create your Remit wallet" }),
 	).toBeVisible();
 
 	await page.getByLabel("Student name").fill(studentName);
@@ -238,7 +355,12 @@ async function createStudent(page: Page, studentName: string) {
 
 async function completeDeposit(
 	page: Page,
-	options: { chainName: string; amount: string; currency: string },
+	options: {
+		chainName: string;
+		amount: string;
+		currency: string;
+		depositInOriginalCurrency?: boolean;
+	},
 ) {
 	await page.getByRole("button", { name: "Deposit" }).click();
 	await expect(
@@ -252,9 +374,14 @@ async function completeDeposit(
 	await panel.getByRole("button", { name: options.currency }).click();
 	await panel.locator('input[type="number"]').fill(options.amount);
 	await panel.getByRole("button", { name: "Continue" }).click();
+	if (options.depositInOriginalCurrency) {
+		await panel
+			.getByText("Deposit in original currency", { exact: true })
+			.click();
+	}
 	await panel.getByRole("button", { name: "Deposit funds" }).click();
 	await expect(
-		panel.getByRole("heading", { name: "Funds arrived" }),
+		panel.getByRole("heading", { name: "Deposit complete" }),
 	).toBeVisible({ timeout: 35_000 });
 	await panel.getByRole("button", { name: "Close" }).click();
 	await expect(page).toHaveURL(/\/dashboard$/);

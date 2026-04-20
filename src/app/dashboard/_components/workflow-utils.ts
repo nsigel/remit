@@ -41,6 +41,11 @@ export function formatAmount(n: number): string {
 export function formatBalance(amount: number, currency: string) {
 	if (currency === "USDC") return `$${formatAmount(amount)} USDC`;
 	if (currency === "EURC") return `€${formatAmount(amount)} EURC`;
+	if (currency === "JPYC") {
+		return `¥${Math.round(amount).toLocaleString("en-US", {
+			maximumFractionDigits: 0,
+		})} JPYC`;
+	}
 	return `${formatAmount(amount)} ${currency}`;
 }
 
@@ -53,6 +58,31 @@ export function txLabel(
 	if (type === "DEPOSIT") return `Deposit from ${sourceChain ?? "unknown"}`;
 	if (type === "SWAP") return `Swap ${fromCurrency} to ${toCurrency}`;
 	return "Current Balance Payment";
+}
+
+export function formatDisplayAmount(amount: number, currency: string) {
+	if (currency === "USDC") return `$${formatAmount(amount)}`;
+	if (currency === "EURC") return `€${formatAmount(amount)}`;
+	if (currency === "JPYC") {
+		return `¥${Math.round(amount).toLocaleString("en-US", {
+			maximumFractionDigits: 0,
+		})}`;
+	}
+	return `${formatAmount(amount)} ${currency}`;
+}
+
+export function isAutoSwapDeposit(tx: {
+	type: string;
+	fromCurrency?: string | null;
+	toCurrency?: string | null;
+	toAmount?: number | null;
+}) {
+	return (
+		tx.type === "DEPOSIT" &&
+		tx.fromCurrency != null &&
+		tx.toCurrency != null &&
+		tx.toAmount != null
+	);
 }
 
 export function buildPaymentPreviewSteps(

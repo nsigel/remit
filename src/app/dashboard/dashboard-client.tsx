@@ -1,8 +1,7 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, PlusIcon } from "lucide-react";
-import Image from "next/image";
+import { Check, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,37 +13,36 @@ import { ThemeToggle } from "../_components/theme-toggle";
 import { DashboardHeader } from "./_components/dashboard-header";
 import { DepositWorkflow } from "./_components/deposit-workflow";
 import { PayWorkflow } from "./_components/pay-workflow";
+import { SwapWorkflow } from "./_components/swap-workflow";
 import {
   formatAmount,
   formatDate,
+  formatDisplayAmount,
   getMinimumPayment,
+  isAutoSwapDeposit,
   txLabel,
 } from "./_components/workflow-utils";
 
-type ActiveWorkflow = "none" | "deposit" | "pay-current";
+type ActiveWorkflow = "none" | "deposit" | "pay-current" | "swap";
 type DemoStepState = "completed" | "current" | "upcoming";
 
-/** Shared tap row: same min height and padding for primary vs secondary CTAs in the summary grid. */
+/** Shared tap row: stable sizing for main summary CTA buttons. */
 const DASHBOARD_CTA_ROW =
-  "mt-4 inline-flex w-full min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-5 text-sm font-medium leading-none";
+  "inline-flex w-full min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full px-5 text-sm font-medium leading-none";
 const DASHBOARD_CTA_PRIMARY = `${DASHBOARD_CTA_ROW} bg-text text-bg transition-opacity hover:opacity-90`;
-const DASHBOARD_CTA_SECONDARY_QUIET = `${DASHBOARD_CTA_ROW} border border-border bg-bg text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text`;
-const DASHBOARD_CTA_SECONDARY = `${DASHBOARD_CTA_ROW} border border-border bg-bg text-text transition-colors hover:bg-bg-secondary`;
 
 function TuitionColumnActions({
-  currentDemoStep,
-  paymentPower,
+  canPayNow,
   totalDue,
   onOpenDeposit,
   onOpenPay,
 }: {
-  currentDemoStep: number;
-  paymentPower: number;
+  canPayNow: boolean;
   totalDue: number;
   onOpenDeposit: () => void;
   onOpenPay: () => void;
 }) {
-  if (currentDemoStep === 2) {
+  if (!canPayNow) {
     return (
       <button
         className={DASHBOARD_CTA_PRIMARY}
@@ -56,38 +54,6 @@ function TuitionColumnActions({
     );
   }
 
-  if (currentDemoStep === 3) {
-    const pct =
-      totalDue > 0
-        ? Math.min(100, Math.round((paymentPower / totalDue) * 1000) / 10)
-        : 0;
-    return (
-      <div className="mt-4 space-y-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-          <span className="text-text-secondary">Tuition coverage</span>
-          <span className="text-text tabular-nums">
-            ${formatAmount(paymentPower)} of ${formatAmount(totalDue)}
-          </span>
-        </div>
-        <div
-          aria-valuemax={100}
-          aria-valuemin={0}
-          aria-valuenow={Math.round(pct)}
-          className="h-2 overflow-hidden rounded-full bg-bg-secondary"
-          role="progressbar"
-        >
-          <div
-            className="h-full rounded-full bg-text/80 transition-[width]"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <p className="text-text-secondary text-xs leading-snug">
-          {`About ${pct}% of tuition covered in spending power.`}
-        </p>
-      </div>
-    );
-  }
-
   return (
     <button className={DASHBOARD_CTA_PRIMARY} onClick={onOpenPay} type="button">
       Pay ${formatAmount(totalDue)}
@@ -96,48 +62,39 @@ function TuitionColumnActions({
 }
 
 function WalletDepositAction({
-  currentDemoStep,
+  isDepositActive,
+  isSwapActive,
   onOpenDeposit,
-  onOpenPay,
+  onOpenSwap,
 }: {
-  currentDemoStep: number;
+  isDepositActive: boolean;
+  isSwapActive: boolean;
   onOpenDeposit: () => void;
-  onOpenPay: () => void;
+  onOpenSwap: () => void;
 }) {
-  if (currentDemoStep === 2) {
-    return (
-      <button
-        className={DASHBOARD_CTA_SECONDARY_QUIET}
-        onClick={onOpenDeposit}
-        type="button"
-      >
-        <PlusIcon className="h-4 w-4 shrink-0 opacity-90" />
-        Deposit on any chain
-      </button>
-    );
-  }
-
-  if (currentDemoStep === 3) {
-    return (
-      <button
-        className={DASHBOARD_CTA_PRIMARY}
-        onClick={onOpenPay}
-        type="button"
-      >
-        Swap to USDC
-      </button>
-    );
-  }
+  const depositClass = isDepositActive
+    ? "inline-flex min-h-11 flex-[5] cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-bg px-5 font-medium text-sm leading-none text-text transition-colors hover:bg-bg-secondary"
+    : "inline-flex min-h-11 flex-[5] cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-bg px-5 font-medium text-sm leading-none text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text";
 
   return (
-    <button
-      className={DASHBOARD_CTA_SECONDARY}
-      onClick={onOpenDeposit}
-      type="button"
-    >
-      <PlusIcon className="h-4 w-4 shrink-0 opacity-90" />
-      Deposit on any chain
-    </button>
+    <div className="flex items-center gap-2">
+      <button className={depositClass} onClick={onOpenDeposit} type="button">
+        <PlusIcon className="h-3.5 w-3.5 shrink-0 opacity-90" />
+        Deposit
+      </button>
+      <button
+        aria-pressed={isSwapActive}
+        className={`inline-flex min-h-11 flex-1 shrink-0 cursor-pointer items-center justify-center rounded-full border px-5 font-medium text-sm leading-none transition-colors ${
+          isSwapActive
+            ? "border-text bg-text text-bg shadow-[0_10px_20px_rgba(10,10,10,0.14)] hover:opacity-90"
+            : "border-border bg-bg text-text-secondary hover:bg-bg-secondary hover:text-text"
+        }`}
+        onClick={onOpenSwap}
+        type="button"
+      >
+        Swap
+      </button>
+    </div>
   );
 }
 
@@ -174,28 +131,29 @@ export function DashboardClient() {
     (sum, invoice) => sum + invoice.amount,
     0,
   );
+  const coveragePercent =
+    totalDue > 0
+      ? Math.min(100, Math.max(0, Math.round((paymentPower / totalDue) * 100)))
+      : 100;
+  const shortfallAmount = Math.max(totalDue - paymentPower, 0);
   const nextDueDate = openStatements[0]?.dueDate;
   const minimumPayment = getMinimumPayment(totalDue);
-  const canPayCurrentBalance = totalDue > 0 && paymentPower >= totalDue;
-  const hasFxBalance = balances.some(
-    (balance) => balance.currency !== "USDC" && balance.amount > 0,
-  );
+  const canPayNow = totalDue > 0 && paymentPower >= totalDue;
   const workflowOpen = activeWorkflow !== "none";
   const contentWidthClass = workflowOpen
     ? "lg:max-w-[880px] lg:flex-1"
     : "lg:mx-auto lg:max-w-[880px]";
-  const currentDemoStep = canPayCurrentBalance ? 4 : hasFxBalance ? 3 : 2;
-  const orderedWalletBalances = [...balances].sort((a, b) => {
-    const order = ["USDC", "EURC", "JPYC"];
-    const aIndex = order.indexOf(a.currency);
-    const bIndex = order.indexOf(b.currency);
-    if (aIndex === -1 && bIndex === -1) {
-      return a.currency.localeCompare(b.currency);
-    }
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  /** Step 5 = demo flow finished (nothing due → step 4 checked off). */
+  const currentDemoStep =
+    totalDue === 0
+      ? 5
+      : activeWorkflow === "deposit"
+        ? 2
+        : activeWorkflow === "swap"
+          ? 3
+          : canPayNow
+            ? 4
+            : 2;
 
   const openWorkflow = (workflow: ActiveWorkflow) => {
     if (workflowLocked) return;
@@ -231,79 +189,88 @@ export function DashboardClient() {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           <div className={`w-full ${contentWidthClass}`}>
             <div className="space-y-8">
-              <section className="pt-4">
+              <section className="">
                 <DemoFlowSection currentStep={currentDemoStep} />
               </section>
 
               <section className="border-border border-t pt-7">
                 <div className="rounded-[2rem] border border-border bg-bg-secondary/50 px-5 py-5 sm:px-6 sm:py-6">
                   <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-                    <section className="min-w-0">
+                    <section className="flex min-w-0 flex-col">
                       <div className="flex items-center gap-2 text-md text-text-secondary">
-                        {/* <Image src="./public/Ar" alt="Arc Network" /> */}
                         Remit balance
                       </div>
                       <div className="mt-2 font-serif text-4xl tabular-nums leading-none sm:text-[3.25rem]">
                         ${formatAmount(paymentPower)}
                       </div>
-                      <div className="mt-2 text-sm text-text-secondary">
-                        Available to pay tuition
+                      <div className="mt-5">
+                        <div
+                          aria-label="Balance coverage"
+                          aria-valuemax={100}
+                          aria-valuemin={0}
+                          aria-valuenow={coveragePercent}
+                          className="h-2 overflow-hidden rounded-full bg-bg"
+                          role="progressbar"
+                        >
+                          <div
+                            className="h-full rounded-full bg-text/80 transition-[width]"
+                            style={{ width: `${coveragePercent}%` }}
+                          />
+                        </div>
+                        <div className="mt-2 flex items-center justify-between gap-2 text-text-secondary text-xs">
+                          <span className="tabular-nums">{`${coveragePercent}% of $${formatAmount(totalDue)} covered`}</span>
+                          {coveragePercent < 100 ? (
+                            <span className="tabular-nums">{`Short $${formatAmount(shortfallAmount)}`}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className=" pt-5">
+                        <WalletDepositAction
+                          isDepositActive={activeWorkflow === "deposit"}
+                          isSwapActive={activeWorkflow === "swap"}
+                          onOpenDeposit={() => openWorkflow("deposit")}
+                          onOpenSwap={() => openWorkflow("swap")}
+                        />
+                        <div className="mt-2 text-xs text-text-secondary gap-1 flex items-center ">
+                          <div
+                            className="inline-block h-1.5 w-1.5 rounded-full bg- align-middle bg-text"
+                            aria-hidden="true"
+                          />
+                          Live FX via StableFX
+                        </div>
                       </div>
                     </section>
 
-                    <section className="min-w-0">
+                    <section className="flex min-w-0 flex-col">
                       <div className="text-md text-text-secondary">
                         Amount due
                       </div>
                       <div className="mt-2 font-serif text-4xl tabular-nums leading-none sm:text-[3.25rem]">
                         ${formatAmount(totalDue)}
                       </div>
-                      <div className="mt-2 text-sm text-text-secondary">
-                        {openStatements.length > 0
-                          ? `Due ${formatDate(nextDueDate)} • Minimum payment $${formatAmount(minimumPayment)}`
-                          : "Nothing open"}
+                      <div className="mt-2 space-y-1 text-sm text-text-secondary">
+                        {openStatements.length > 0 ? (
+                          <>
+                            <div>Due {formatDate(nextDueDate)}</div>
+                            <div>
+                              Minimum payment ${formatAmount(minimumPayment)}
+                            </div>
+                          </>
+                        ) : (
+                          <div>Nothing open</div>
+                        )}
                       </div>
-                      {openStatements.length > 0 ? (
-                        <TuitionColumnActions
-                          currentDemoStep={currentDemoStep}
-                          onOpenDeposit={() => openWorkflow("deposit")}
-                          onOpenPay={() => openWorkflow("pay-current")}
-                          paymentPower={paymentPower}
-                          totalDue={totalDue}
-                        />
-                      ) : null}
+                      <div className="mt-aut pt-5">
+                        {openStatements.length > 0 ? (
+                          <TuitionColumnActions
+                            canPayNow={canPayNow}
+                            onOpenDeposit={() => openWorkflow("deposit")}
+                            onOpenPay={() => openWorkflow("pay-current")}
+                            totalDue={totalDue}
+                          />
+                        ) : null}
+                      </div>
                     </section>
-                  </div>
-
-                  <div className="mt-6 border-border border-t pt-5">
-                    <div className="flex items-center justify-between gap-4">
-                      <h2 className="font-serif text-[1.7rem] leading-none">
-                        Wallet breakdown
-                      </h2>
-                      <button
-                        className="inline-flex items-center gap-1 font-serif text-accent text-md italic tracking-wide transition-opacity hover:opacity-80"
-                        type="button"
-                      >
-                        How stablecoins work
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div className="mt-4 grid gap-x-6 sm:grid-cols-3">
-                      {orderedWalletBalances.map((balance) => (
-                        <WalletBalanceRow
-                          amount={balance.amount}
-                          currency={balance.currency}
-                          key={balance.currency}
-                          label={balance.currency}
-                        />
-                      ))}
-                    </div>
-                    <WalletDepositAction
-                      currentDemoStep={currentDemoStep}
-                      onOpenDeposit={() => openWorkflow("deposit")}
-                      onOpenPay={() => openWorkflow("pay-current")}
-                    />
                   </div>
                 </div>
               </section>
@@ -352,24 +319,7 @@ export function DashboardClient() {
                               tx.toCurrency,
                             )}
                           </div>
-                          <div className="text-text-secondary text-xs">
-                            {tx.confirmationMs != null &&
-                              `${(tx.confirmationMs / 1000).toFixed(2)}s`}
-                            {tx.txHash ? (
-                              <>
-                                {" "}
-                                &middot;{" "}
-                                <a
-                                  className="cursor-pointer transition-colors hover:text-text"
-                                  href={`${ARC.explorer}/tx/${tx.txHash}`}
-                                  rel="noopener noreferrer"
-                                  target="_blank"
-                                >
-                                  {tx.txHash.slice(0, 10)}...
-                                </a>
-                              </>
-                            ) : null}
-                          </div>
+                          <TransactionMeta tx={tx} />
                         </div>
                         <div className="text-right tabular-nums">
                           <div
@@ -377,20 +327,14 @@ export function DashboardClient() {
                               tx.type === "DEPOSIT" ? "text-success" : ""
                             }
                           >
-                            {tx.type === "DEPOSIT"
-                              ? "+"
-                              : tx.type === "PAYMENT"
-                                ? "-"
-                                : ""}
-                            $
-                            {formatAmount(
-                              tx.type === "SWAP" && tx.toAmount
-                                ? tx.toAmount
-                                : tx.amount,
+                            {getTransactionAmountPrefix(tx)}
+                            {formatDisplayAmount(
+                              getTransactionDisplayAmount(tx),
+                              getTransactionDisplayCurrency(tx),
                             )}
                           </div>
                           <div className="text-text-secondary text-xs">
-                            {tx.type === "SWAP" ? tx.toCurrency : tx.currency}
+                            {getTransactionDisplayCurrency(tx)}
                           </div>
                         </div>
                       </div>
@@ -414,6 +358,15 @@ export function DashboardClient() {
               <PayWorkflow
                 canClose={!workflowLocked}
                 key="pay-current"
+                onClose={closeWorkflow}
+                onOpenDeposit={() => openWorkflow("deposit")}
+                onLockChange={setWorkflowLocked}
+              />
+            ) : null}
+            {activeWorkflow === "swap" ? (
+              <SwapWorkflow
+                canClose={!workflowLocked}
+                key="swap"
                 onClose={closeWorkflow}
                 onLockChange={setWorkflowLocked}
               />
@@ -497,55 +450,84 @@ function StatementRow({
   );
 }
 
-function WalletBalanceRow({
-  amount,
-  currency,
-  label,
+function TransactionMeta({
+  tx,
 }: {
-  amount: number;
-  currency: string;
-  label: string;
+  tx: {
+    type: string;
+    txHash?: string | null;
+    confirmationMs?: number | null;
+    fromCurrency?: string | null;
+    toCurrency?: string | null;
+    toAmount?: number | null;
+  };
 }) {
+  const autoSwapDeposit = isAutoSwapDeposit(tx);
+
   return (
-    <div className="flex items-center justify-betwen gap-4 border-border border-t py-3 first:border-t-0">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-bg">
-          <Image
-            alt=""
-            aria-hidden
-            height={20}
-            src={currencyLogoMap[currency] ?? "/usdc.svg"}
-            style={{ height: "auto" }}
-            width={20}
-          />
-        </span>
-        <span className="truncate text-sm text-text-secondary">{label}</span>
-      </div>
-      <div className="font-serif text-[1.65rem] text-text tabular-nums leading-none">
-        {formatWalletAmount(amount, currency)}
+    <div className="mt-1 grid gap-1 text-text-secondary text-xs">
+      {autoSwapDeposit ? <div>Settled in USDC via StableFX</div> : null}
+      <div className="flex flex-wrap items-center gap-2">
+        {autoSwapDeposit ? (
+          <>
+            <span>
+              {tx.fromCurrency} → {tx.toCurrency}
+            </span>
+            <span aria-hidden className="h-3 w-px bg-border" />
+          </>
+        ) : null}
+        {tx.confirmationMs != null ? (
+          <span>{(tx.confirmationMs / 1000).toFixed(1)}s</span>
+        ) : null}
+        {tx.txHash ? (
+          <>
+            {tx.confirmationMs != null ? (
+              <span aria-hidden className="h-3 w-px bg-border" />
+            ) : null}
+            <a
+              className="cursor-pointer transition-colors hover:text-text"
+              href={`${ARC.explorer}/tx/${tx.txHash}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {tx.txHash.slice(0, 10)}...
+            </a>
+          </>
+        ) : null}
       </div>
     </div>
   );
 }
 
-const currencyLogoMap: Record<string, string> = {
-  EURC: "/eurc.svg",
-  JPYC: "/jpyc.svg",
-  USDC: "/usdc.svg",
-};
+function getTransactionDisplayAmount(tx: {
+  type: string;
+  amount: number;
+  currency: string;
+  toAmount?: number | null;
+  toCurrency?: string | null;
+  fromCurrency?: string | null;
+}) {
+  if (tx.type === "SWAP" && tx.toAmount != null) return tx.toAmount;
+  if (isAutoSwapDeposit(tx)) return tx.toAmount ?? tx.amount;
+  return tx.amount;
+}
 
-function formatWalletAmount(amount: number, currency: string) {
-  const formatted =
-    amount === 0
-      ? formatAmount(0)
-      : Math.round(amount).toLocaleString("en-US", {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        });
-  if (currency === "USDC") return `$${formatted}`;
-  if (currency === "EURC") return `€${formatted}`;
-  if (currency === "JPYC") return `¥${formatted}`;
-  return `${formatted}`;
+function getTransactionDisplayCurrency(tx: {
+  type: string;
+  currency: string;
+  toCurrency?: string | null;
+  fromCurrency?: string | null;
+  toAmount?: number | null;
+}) {
+  if (tx.type === "SWAP") return tx.toCurrency ?? tx.currency;
+  if (isAutoSwapDeposit(tx)) return tx.toCurrency ?? tx.currency;
+  return tx.currency;
+}
+
+function getTransactionAmountPrefix(tx: { type: string }) {
+  if (tx.type === "DEPOSIT") return "+";
+  if (tx.type === "PAYMENT") return "-";
+  return "";
 }
 
 const DEMO_FLOW_STEPS = [
@@ -563,9 +545,9 @@ const DEMO_FLOW_STEPS = [
   },
   {
     step: 3,
-    title: "Swap FX",
-    description: "0.1% spread.",
-    completedTitle: "FX routed",
+    title: "Funding path ready",
+    description: "Convert only what this payment needs.",
+    completedTitle: "Route confirmed",
   },
   {
     step: 4,
@@ -638,19 +620,28 @@ function DemoStepCard({
 }
 
 function getCurrentDemoStepMeta(currentStep: number) {
+  if (currentStep === 5) {
+    return {
+      action: "All set.",
+      title: "Tuition is paid up",
+      description: "No open balance—your demo flow is complete.",
+    };
+  }
+
   if (currentStep === 4) {
     return {
       action: "Pay your university.",
       title: "Pay tuition on Arc",
-      description: "Send USDC to your university and settle instantly on Arc.",
+      description:
+        "Confirm the payment once and Remit will route the funding automatically.",
     };
   }
 
   if (currentStep === 3) {
     return {
-      action: "Swap into USDC.",
-      title: "Swap stablecoins into USDC",
-      description: `Convert local stablecoins into USDC with StableFX at a ${(STABLEFX_SPREAD * 100).toFixed(1)}% spread.`,
+      action: "Route payment automatically.",
+      title: "Convert only what this payment needs",
+      description: `When needed, StableFX routes supported balances into USDC at a ${(STABLEFX_SPREAD * 100).toFixed(1)}% spread before payment.`,
     };
   }
 

@@ -1,12 +1,30 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Check, LoaderCircle } from "lucide-react";
-import { ARC, CCTP_CHAINS, DEPOSIT_CURRENCIES } from "~/lib/constants";
+import { ArrowUpDown, LoaderCircle } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import {
+	ARC,
+	CCTP_CHAINS,
+	DEPOSIT_CURRENCIES,
+	FX_RATES,
+} from "~/lib/constants";
+import {
+	getDepositFlowDurationMs,
+	STABLEFX_TOTAL_DURATION_MS,
+	type StableFxQuoteSnapshot,
+} from "~/lib/stablefx";
+import { useTheme } from "~/lib/theme";
 import { api } from "~/trpc/react";
+import { DepositOutcomeCard } from "./deposit-outcome-card";
+import { useStableFxQuote } from "./use-stablefx-quote";
 import { WorkflowShell } from "./workflow-shell";
 import { WorkflowStep } from "./workflow-step";
 import { delay, formatAmount } from "./workflow-utils";
+
+type NetworkChainTile =
+	| { domain: number; icon: string }
+	| { domain: number; arcLogo: true };
 
 type DepositWorkflowProps = {
 	canClose: boolean;
@@ -14,7 +32,54 @@ type DepositWorkflowProps = {
 	onLockChange: (locked: boolean) => void;
 };
 
-type DepositStage = "input" | "bridging" | "done";
+type DepositStage = "input" | "processing" | "done";
+type ProgressStatus = "pending" | "active" | "complete";
+
+type CompletedTxState = {
+	txHash: string;
+	confirmationMs: number;
+};
+
+const RECOMMENDED_DEPOSIT_USDC_AMOUNTS = [5000, 15000, 22500] as const;
+
+const NETWORK_ICON_GRID: NetworkChainTile[] = [
+	{ icon: "/networks/Solana.svg", domain: 10 },
+	{ domain: ARC.cctpDomain, arcLogo: true },
+	{ icon: "/networks/HyperEVM.svg", domain: 19 },
+	{ icon: "/networks/Base.svg", domain: 6 },
+	{ icon: "/networks/Ethereum.svg", domain: 0 },
+	{ icon: "/networks/Arbitrum.svg", domain: 3 },
+	{ icon: "/networks/Optimism.svg", domain: 2 },
+	{ icon: "/networks/Polygon.svg", domain: 7 },
+];
+
+function isArcNetworkTile(
+	entry: NetworkChainTile,
+): entry is { domain: number; arcLogo: true } {
+	return "arcLogo" in entry && entry.arcLogo;
+}
+
+type RemitWalletLabelProps = {
+	arcIconSrc: string;
+	className?: string;
+};
+
+function RemitWalletLabel({ arcIconSrc, className }: RemitWalletLabelProps) {
+	return (
+		<span className={className ?? "inline-flex items-center gap-1.5"}>
+			<span>Remit wallet</span>
+			<Image
+				alt=""
+				aria-hidden
+				className="shrink-0"
+				height={14}
+				src={arcIconSrc}
+				unoptimized
+				width={14}
+			/>
+		</span>
+	);
+}
 
 export function DepositWorkflow({
 	canClose,
@@ -22,6 +87,7 @@ export function DepositWorkflow({
 	onLockChange,
 }: DepositWorkflowProps) {
 	const utils = api.useUtils();
+	const { theme } = useTheme();
 	const [stage, setStage] = useState<DepositStage>("input");
 	const [selectedChain, setSelectedChain] = useState<
 		(typeof CCTP_CHAINS)[number] | null
@@ -31,25 +97,17 @@ export function DepositWorkflow({
 	>(null);
 	const [amount, setAmount] = useState("");
 	const [amountConfirmed, setAmountConfirmed] = useState(false);
-	const [search, setSearch] = useState("");
-	const [currentBridgeStep, setCurrentBridgeStep] = useState(-1);
-	const [completedTx, setCompletedTx] = useState<{
-		txHash: string;
-		blockNumber: number;
-		confirmationMs: number;
-	} | null>(null);
+	const [depositInOriginalCurrency, setDepositInOriginalCurrency] =
+		useState(false);
+	const [swapStatus, setSwapStatus] = useState<ProgressStatus>("pending");
+	const [processingQuote, setProcessingQuote] =
+		useState<StableFxQuoteSnapshot | null>(null);
+	const [completedTx, setCompletedTx] = useState<CompletedTxState | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	const initiate = api.deposit.initiate.useMutation();
 	const progress = api.deposit.progress.useMutation();
 
-	const popularChains = CCTP_CHAINS.filter((chain) => chain.popular);
-	const otherChains = CCTP_CHAINS.filter((chain) => !chain.popular);
-	const filteredOther = search
-		? otherChains.filter((chain) =>
-				chain.name.toLowerCase().includes(search.toLowerCase()),
-			)
-		: otherChains;
 	const selectedCurrency = DEPOSIT_CURRENCIES.find(
 		(depositCurrency) => depositCurrency.symbol === currency,
 	);
@@ -59,111 +117,144 @@ export function DepositWorkflow({
 		currency != null &&
 		parsedAmount > 0 &&
 		amountConfirmed;
-	const bridgeSteps = [
-		`Approve on ${selectedChain?.name ?? "source chain"}`,
-		`Burn on ${selectedChain?.name ?? "source chain"}`,
-		"Circle attestation",
-		"Mint on Arc",
-	];
+	const extraNetworkCount = CCTP_CHAINS.length - NETWORK_ICON_GRID.length;
+	const arcFullLogoSrc =
+		theme === "dark" ? "/Arc_Full_Logo_White.svg" : "/Arc_Full_Logo_Navy.svg";
+	const arcIconSrc =
+		theme === "dark" ? "/Arc_Icon_White.svg" : "/Arc_Icon_Navay.svg";
+	const isArcSource =
+		selectedChain != null && selectedChain.domain === ARC.cctpDomain;
+	const shouldOfferSwap = currency != null && currency !== "USDC";
+	const autoSwap = shouldOfferSwap && !depositInOriginalCurrency;
+	const stableFx = useStableFxQuote({
+		enabled: shouldOfferSwap,
+		fromAmount: parsedAmount,
+		fromCurrency: currency,
+	});
+	const reviewQuote = autoSwap ? stableFx.quote : null;
+	const activeQuote = processingQuote ?? reviewQuote;
+	const [now, setNow] = useState(() => Date.now());
+	const settledAmount =
+		activeQuote?.toAmount ?? (parsedAmount > 0 ? parsedAmount : 0);
+	const settledCurrency = activeQuote?.toCurrency ?? currency ?? "USDC";
+	const recommendedDepositAmounts = RECOMMENDED_DEPOSIT_USDC_AMOUNTS.map(
+		(targetUsdcAmount) =>
+			convertFromUsdcTarget({
+				targetUsdcAmount,
+				depositCurrency: currency ?? "USDC",
+			}),
+	);
+	const expectedDurationMs = getDepositFlowDurationMs({
+		arcNative: isArcSource,
+		autoSwap,
+	});
+	const refreshCountdownSeconds =
+		autoSwap && stableFx.nextRefreshAt != null && !stableFx.isRefreshing
+			? Math.max(0, Math.ceil((stableFx.nextRefreshAt - now) / 1000))
+			: null;
+
+	useEffect(() => {
+		if (!autoSwap || stableFx.nextRefreshAt == null || stableFx.isRefreshing) {
+			return;
+		}
+
+		const intervalId = window.setInterval(() => {
+			setNow(Date.now());
+		}, 250);
+
+		return () => window.clearInterval(intervalId);
+	}, [autoSwap, stableFx.isRefreshing, stableFx.nextRefreshAt]);
 
 	useEffect(() => {
 		return () => onLockChange(false);
 	}, [onLockChange]);
 
-	const resetAfter = useCallback(
-		(callback: () => void) => {
-			if (!canClose) return;
-			callback();
-		},
-		[canClose],
-	);
+	const resetStepState = () => {
+		setAmountConfirmed(false);
+		setDepositInOriginalCurrency(false);
+		setErrorMessage(null);
+		setProcessingQuote(null);
+		stableFx.resetQuote();
+	};
 
-	const handleEditChain = () =>
-		resetAfter(() => {
-			setSelectedChain(null);
-			setCurrency(null);
-			setAmount("");
-			setSearch("");
-			setAmountConfirmed(false);
-			setErrorMessage(null);
-		});
+	const handleEditChain = () => {
+		if (!canClose) return;
+		setSelectedChain(null);
+		setCurrency(null);
+		setAmount("");
+		resetStepState();
+	};
 
-	const handleEditCurrency = () =>
-		resetAfter(() => {
-			setCurrency(null);
-			setAmount("");
-			setAmountConfirmed(false);
-			setErrorMessage(null);
-		});
-
-	const handleEditAmount = () =>
-		resetAfter(() => {
-			setAmountConfirmed(false);
-			setErrorMessage(null);
-		});
-
-	const runBridge = useCallback(
-		async (transactionId: string) => {
-			const delays = [1500, 2000, 3000, 1000];
-
-			for (let index = 0; index < bridgeSteps.length; index++) {
-				await delay(delays[index] ?? 1000);
-				const result = await progress.mutateAsync({ transactionId });
-				setCurrentBridgeStep(index);
-
-				if (
-					result.status === "CONFIRMED" &&
-					result.txHash &&
-					result.blockNumber != null &&
-					result.confirmationMs != null
-				) {
-					setCompletedTx({
-						txHash: result.txHash,
-						blockNumber: result.blockNumber,
-						confirmationMs: result.confirmationMs,
-					});
-				}
-			}
-
-			await Promise.all([
-				utils.student.dashboard.invalidate(),
-				utils.transaction.list.invalidate(),
-				utils.invoice.get.invalidate({ id: "current" }),
-			]);
-			setStage("done");
-			onLockChange(false);
-		},
-		[
-			bridgeSteps.length,
-			onLockChange,
-			progress,
-			utils.invoice.get,
-			utils.student.dashboard,
-			utils.transaction.list,
-		],
-	);
+	const handleEditAmount = () => {
+		if (!canClose) return;
+		setAmountConfirmed(false);
+		setErrorMessage(null);
+		setProcessingQuote(null);
+		stableFx.resetQuote();
+	};
 
 	const handleStartDeposit = async () => {
 		if (!selectedChain || !currency || parsedAmount <= 0) return;
 
+		const lockedQuote = autoSwap ? stableFx.lockQuote() : null;
+		if (autoSwap && !lockedQuote) {
+			setErrorMessage("StableFX quote is still loading.");
+			return;
+		}
+
 		setErrorMessage(null);
-		setStage("bridging");
-		setCurrentBridgeStep(-1);
 		setCompletedTx(null);
+		setProcessingQuote(lockedQuote);
+		setStage("processing");
+		setSwapStatus(autoSwap ? "pending" : "complete");
 		onLockChange(true);
 
 		try {
 			const transaction = await initiate.mutateAsync({
 				amount: parsedAmount,
+				autoSwap,
 				currency,
+				settlementCurrency: autoSwap ? "USDC" : currency,
 				sourceChainDomain: selectedChain.domain,
+				swapQuote: lockedQuote ?? undefined,
 			});
 
-			await runBridge(transaction.id);
+			const finalTx = await runBridge({
+				arcNative: isArcSource,
+				progress,
+				transactionId: transaction.id,
+			});
+
+			if (finalTx.txHash && finalTx.confirmationMs != null) {
+				setCompletedTx({
+					txHash: finalTx.txHash,
+					confirmationMs: finalTx.confirmationMs,
+				});
+			}
+
+			if (autoSwap && lockedQuote) {
+				setSwapStatus("active");
+				await delay(STABLEFX_TOTAL_DURATION_MS);
+				setSwapStatus("complete");
+			}
+
+			await Promise.all([
+				utils.student.dashboard.invalidate(),
+				utils.transaction.list.invalidate(),
+				utils.invoice.get.invalidate(
+					{ id: "current" },
+					{ refetchType: "none" },
+				),
+			]);
+
+			setStage("done");
+			onLockChange(false);
 		} catch (error) {
 			setStage("input");
-			setCurrentBridgeStep(-1);
+			setSwapStatus("pending");
 			setCompletedTx(null);
+			setProcessingQuote(null);
+			stableFx.resetQuote();
 			setErrorMessage(
 				error instanceof Error
 					? error.message
@@ -172,6 +263,49 @@ export function DepositWorkflow({
 			onLockChange(false);
 		}
 	};
+
+	const outcomeStatus: ProgressStatus = autoSwap
+		? stage === "done"
+			? "complete"
+			: swapStatus === "active"
+				? "active"
+				: "pending"
+		: stage === "done"
+			? "complete"
+			: "active";
+
+	const depositOutcomeCard =
+		selectedChain && currency ? (
+			<DepositOutcomeCard
+				arrivalAmount={settledAmount}
+				arrivalCurrency={settledCurrency}
+				autoSwap={autoSwap}
+				confirmationMs={completedTx?.confirmationMs}
+				depositAmount={parsedAmount}
+				depositCurrency={currency}
+				quote={activeQuote}
+				sourceChainName={selectedChain.name}
+				status={outcomeStatus}
+				txHash={completedTx?.txHash}
+			/>
+		) : null;
+
+	const depositResolutionContent =
+		stage !== "input" ? (
+			<div className="space-y-4">
+				{depositOutcomeCard}
+
+				{stage === "done" ? (
+					<button
+						className="w-full cursor-pointer rounded-full bg-text py-3 font-medium text-bg transition-opacity hover:opacity-90"
+						onClick={onClose}
+						type="button"
+					>
+						Back to dashboard
+					</button>
+				) : null}
+			</div>
+		) : null;
 
 	return (
 		<WorkflowShell canClose={canClose} onClose={onClose} title="Deposit funds">
@@ -187,125 +321,113 @@ export function DepositWorkflow({
 						</button>
 					) : undefined
 				}
-				state={selectedChain ? "completed" : "active"}
+				state={selectedChain && currency ? "completed" : "active"}
 				stepLabel="Step 1"
 				summary={
-					selectedChain ? (
-						<p className="text-sm text-text-secondary">Source chain</p>
+					selectedChain && selectedCurrency ? (
+						<p className="text-sm text-text-secondary">
+							{`${selectedChain.name} · ${selectedCurrency.symbol}`}
+						</p>
 					) : undefined
 				}
-				title={selectedChain?.name ?? "Choose chain"}
+				title={
+					selectedChain && selectedCurrency
+						? `${selectedChain.name} · ${selectedCurrency.symbol}`
+						: "Choose source and currency"
+				}
 			>
-				<div className="space-y-4">
-					<div className="grid gap-2">
-						{popularChains.map((chain) => (
-							<button
-								className="flex cursor-pointer items-center justify-between rounded-2xl border border-border px-4 py-3 text-left transition-colors hover:bg-bg-secondary"
-								key={chain.domain}
-								onClick={() => {
-									setSelectedChain(chain);
-									setCurrency(null);
-									setAmount("");
-									setSearch("");
-									setAmountConfirmed(false);
-									setErrorMessage(null);
-								}}
-								type="button"
-							>
-								<span className="font-medium">{chain.name}</span>
-							</button>
-						))}
+				<div className="space-y-5">
+					<div>
+						<div className="mb-3 text-sm text-text-secondary">From</div>
+						<div className="grid grid-cols-3 gap-2">
+							{NETWORK_ICON_GRID.map((entry) => {
+								const chain = CCTP_CHAINS.find(
+									(item) => item.domain === entry.domain,
+								);
+								if (!chain) return null;
+
+								const isSelected = selectedChain?.domain === entry.domain;
+								const isArc = isArcNetworkTile(entry);
+								const iconSrc = isArc ? arcFullLogoSrc : entry.icon;
+
+								return (
+									<button
+										className={`flex aspect-square cursor-pointer items-center justify-center rounded-lg border p-2 transition-colors hover:bg-bg-secondary ${
+											isSelected
+												? "border-text ring-2 ring-text"
+												: "border-border"
+										}`}
+										key={entry.domain}
+										onClick={() => {
+											setSelectedChain(chain);
+											setAmount("");
+											resetStepState();
+										}}
+										type="button"
+									>
+										<Image
+											alt={chain.name}
+											className={
+												isArc
+													? "max-h-9 w-auto max-w-full object-contain object-center"
+													: "max-h-full max-w-full object-contain"
+											}
+											height={isArc ? 68 : 48}
+											src={iconSrc}
+											unoptimized
+											width={isArc ? 200 : 48}
+										/>
+									</button>
+								);
+							})}
+							{extraNetworkCount > 0 ? (
+								<div
+									aria-hidden
+									className="flex aspect-square items-center justify-center rounded-lg border border-border bg-bg-secondary font-medium text-md text-text-secondary"
+									title={`${extraNetworkCount} more networks`}
+								>
+									+{extraNetworkCount}
+								</div>
+							) : null}
+						</div>
 					</div>
 
-					<div>
-						<input
-							className="w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm outline-none transition-colors focus:border-text"
-							onChange={(event) => setSearch(event.target.value)}
-							placeholder="Search chains"
-							type="text"
-							value={search}
-						/>
-						<div className="mt-3 space-y-1">
-							{filteredOther.map((chain) => (
+					<div className="border-border border-t pt-4">
+						<div className="mb-3 text-sm text-text-secondary">Deposit</div>
+						<div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+							{DEPOSIT_CURRENCIES.map((depositCurrency) => (
 								<button
-									className="w-full cursor-pointer rounded-2xl px-4 py-2.5 text-left text-sm transition-colors hover:bg-bg-secondary"
-									key={chain.domain}
+									className={`cursor-pointer rounded-2xl border px-4 py-4 text-left transition-colors ${
+										currency === depositCurrency.symbol
+											? "border-text bg-text text-bg"
+											: "border-border hover:bg-bg-secondary"
+									}`}
+									key={depositCurrency.symbol}
 									onClick={() => {
-										setSelectedChain(chain);
-										setCurrency(null);
+										setCurrency(depositCurrency.symbol);
 										setAmount("");
-										setSearch("");
-										setAmountConfirmed(false);
-										setErrorMessage(null);
+										resetStepState();
 									}}
 									type="button"
 								>
-									{chain.name}
+									<div className="font-medium text-base">
+										{depositCurrency.symbol}
+									</div>
+									<div
+										className={
+											currency === depositCurrency.symbol
+												? "mt-1 text-bg/72 text-sm"
+												: "mt-1 text-sm text-text-secondary"
+										}
+									>
+										{depositCurrency.name}
+									</div>
 								</button>
 							))}
 						</div>
 					</div>
 				</div>
 			</WorkflowStep>
-
-			{selectedChain ? (
-				<WorkflowStep
-					action={
-						currency && stage === "input" ? (
-							<button
-								className="cursor-pointer text-text-secondary text-xs transition-colors hover:text-text"
-								onClick={handleEditCurrency}
-								type="button"
-							>
-								Edit
-							</button>
-						) : undefined
-					}
-					state={currency ? "completed" : "active"}
-					stepLabel="Step 2"
-					summary={
-						selectedCurrency ? (
-							<p className="text-sm text-text-secondary">
-								{selectedCurrency.name}
-							</p>
-						) : undefined
-					}
-					title={selectedCurrency?.symbol ?? "Choose currency"}
-				>
-					<div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-						{DEPOSIT_CURRENCIES.map((depositCurrency) => (
-							<button
-								className={`cursor-pointer rounded-2xl border px-4 py-4 text-left transition-colors ${
-									currency === depositCurrency.symbol
-										? "border-text bg-text text-bg"
-										: "border-border hover:bg-bg-secondary"
-								}`}
-								key={depositCurrency.symbol}
-								onClick={() => {
-									setCurrency(depositCurrency.symbol);
-									setAmount("");
-									setAmountConfirmed(false);
-									setErrorMessage(null);
-								}}
-								type="button"
-							>
-								<div className="font-medium text-base">
-									{depositCurrency.symbol}
-								</div>
-								<div
-									className={
-										currency === depositCurrency.symbol
-											? "mt-1 text-bg/72 text-sm"
-											: "mt-1 text-sm text-text-secondary"
-									}
-								>
-									{depositCurrency.name}
-								</div>
-							</button>
-						))}
-					</div>
-				</WorkflowStep>
-			) : null}
 
 			{selectedChain && currency ? (
 				<WorkflowStep
@@ -321,10 +443,12 @@ export function DepositWorkflow({
 						) : undefined
 					}
 					state={amountConfirmed ? "completed" : "active"}
-					stepLabel="Step 3"
+					stepLabel="Step 2"
 					summary={
 						amountConfirmed ? (
-							<p className="text-sm text-text-secondary">Deposit amount</p>
+							<p className="text-sm text-text-secondary">
+								{formatCurrencyAmount(parsedAmount, currency)}
+							</p>
 						) : undefined
 					}
 					title={
@@ -336,46 +460,49 @@ export function DepositWorkflow({
 					<div className="space-y-4">
 						<input
 							className="w-full rounded-3xl border border-border bg-bg px-4 py-4 text-4xl tabular-nums outline-none transition-colors focus:border-text"
-							min="0"
+							inputMode="decimal"
 							onChange={(event) => {
-								setAmount(event.target.value);
+								const nextAmount = event.target.value.replaceAll(",", "");
+								if (nextAmount && !/^\d*\.?\d*$/.test(nextAmount)) {
+									return;
+								}
+
+								setAmount(nextAmount);
 								setAmountConfirmed(false);
+								setProcessingQuote(null);
+								stableFx.resetQuote();
 							}}
 							placeholder="0.00"
-							step="0.01"
-							type="number"
-							value={amount}
+							type="text"
+							value={formatAmountInputForDisplay(amount)}
 						/>
 
 						<div className="flex flex-wrap gap-2">
-							{[5000, 15000, 22500].map((preset) => (
+							{recommendedDepositAmounts.map((preset, index) => (
 								<button
 									className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs transition-colors hover:bg-bg-secondary"
-									key={preset}
+									key={RECOMMENDED_DEPOSIT_USDC_AMOUNTS[index]}
 									onClick={() => {
 										setAmount(preset.toString());
 										setAmountConfirmed(false);
+										setProcessingQuote(null);
+										stableFx.resetQuote();
 									}}
 									type="button"
 								>
-									${preset.toLocaleString()}
+									{formatCurrencyAmount(preset, currency)}
 								</button>
 							))}
 						</div>
 
 						{parsedAmount > 0 ? (
-							<div className="space-y-2 border-border border-t pt-4 text-sm">
-								<div className="flex justify-between gap-4">
-									<span className="text-text-secondary">Source chain</span>
-									<span>{selectedChain.name}</span>
-								</div>
-								<div className="flex justify-between gap-4 font-medium">
-									<span>Arrives on Arc</span>
-									<span>
-										{formatAmount(parsedAmount)} {currency}
-									</span>
-								</div>
-							</div>
+							<p className="border-border border-t pt-4 text-sm text-text-secondary">
+								{`From ${selectedChain.name} into `}
+								<RemitWalletLabel
+									arcIconSrc={arcIconSrc}
+									className="inline-flex items-center gap-1.5 font-medium text-text"
+								/>
+							</p>
 						) : null}
 
 						<button
@@ -393,51 +520,87 @@ export function DepositWorkflow({
 				</WorkflowStep>
 			) : null}
 
-			{canReview ? (
+			{canReview && currency ? (
 				<WorkflowStep
 					state={stage === "input" ? "active" : "completed"}
-					stepLabel="Step 4"
-					summary={
-						<div className="space-y-1">
-							<div className="flex items-center justify-between gap-4">
-								<span>Source chain</span>
-								<span className="font-medium text-text">
-									{selectedChain?.name}
-								</span>
-							</div>
-							<div className="flex items-center justify-between gap-4">
-								<span>Destination</span>
-								<span className="font-medium text-text">Arc wallet</span>
-							</div>
-							<div className="flex items-center justify-between gap-4">
-								<span>Deposit</span>
-								<span className="font-medium text-text">
-									{formatAmount(parsedAmount)} {currency}
-								</span>
-							</div>
-						</div>
-					}
+					stepLabel="Step 3"
 					title="Review deposit"
 				>
 					<div className="space-y-4 text-sm">
-						<div className="space-y-3 border-border border-y py-4">
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">From</span>
-								<span>{selectedChain?.name}</span>
+						<div className="rounded-[1.6rem] border border-border bg-bg px-4 py-5 sm:px-5">
+							<div className="flex items-start justify-between gap-4">
+								<p className="font-serif text-2xl text-text leading-none">
+									Swapping with StableFX
+								</p>
+								{autoSwap ? (
+									<RateRefreshIndicator
+										countdownSeconds={refreshCountdownSeconds}
+										isRefreshing={stableFx.isRefreshing}
+									/>
+								) : null}
 							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Currency</span>
-								<span>{currency}</span>
+
+							<div className="mt-5">
+								{autoSwap ? (
+									<div className="space-y-3">
+										<ReviewCurrencyLeg
+											amount={parsedAmount}
+											currency={currency}
+											label="You send"
+										/>
+										<div className="flex justify-center">
+											<div className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-bg-secondary text-text">
+												<ArrowUpDown className="h-4 w-4" strokeWidth={1.8} />
+											</div>
+										</div>
+										<ReviewCurrencyLeg
+											amount={settledAmount}
+											currency={settledCurrency}
+											label="You receive"
+										/>
+									</div>
+								) : (
+									<ReviewCurrencyLeg
+										amount={settledAmount}
+										currency={settledCurrency}
+										label="Arrives as"
+									/>
+								)}
 							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Amount</span>
-								<span>{formatAmount(parsedAmount)}</span>
-							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Destination</span>
-								<span>Arc wallet</span>
+
+							<div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-border border-t pt-4 text-sm text-text-secondary">
+								<span>{`About ${(expectedDurationMs / 1000).toFixed(1)}s`}</span>
+								{autoSwap && reviewQuote ? (
+									<span>{formatRate(reviewQuote)}</span>
+								) : null}
+								{!autoSwap ? (
+									<span>
+										{isArcSource ? "Direct Arc credit" : "Arc settlement"}
+									</span>
+								) : null}
 							</div>
 						</div>
+
+						{shouldOfferSwap ? (
+							<label className="flex cursor-pointer items-start gap-3 rounded-[1.35rem] border border-border bg-bg px-4 py-4">
+								<input
+									checked={depositInOriginalCurrency}
+									className="mt-1 h-4 w-4 accent-[var(--fg)]"
+									onChange={(event) =>
+										setDepositInOriginalCurrency(event.target.checked)
+									}
+									type="checkbox"
+								/>
+								<span className="block">
+									<span className="block font-medium text-base text-text">
+										Deposit in original currency
+									</span>
+									<span className="mt-1 block text-sm text-text-secondary">
+										Wait for a better rate.
+									</span>
+								</span>
+							</label>
+						) : null}
 
 						{errorMessage ? (
 							<p className="text-danger">{errorMessage}</p>
@@ -457,88 +620,178 @@ export function DepositWorkflow({
 
 			{stage !== "input" ? (
 				<WorkflowStep
-					state={stage === "bridging" ? "active" : "completed"}
-					stepLabel="Step 5"
-					summary="All bridge milestones completed on Arc."
-					title={stage === "bridging" ? "Deposit progress" : "Deposit complete"}
+					activeBadge="spinner"
+					completedContent={depositResolutionContent}
+					state={stage === "processing" ? "active" : "completed"}
+					stepLabel="Step 4"
+					summary="Deposit settled."
+					title={
+						stage === "processing" ? "Deposit in motion" : "Deposit complete"
+					}
 				>
-					<div className="space-y-3">
-						{bridgeSteps.map((label, index) => {
-							const isDone = index <= currentBridgeStep;
-							const isCurrent = index === currentBridgeStep + 1;
-
-							return (
-								<div
-									className="flex items-center gap-3 border-border border-b py-2.5 last:border-b-0"
-									key={label}
-								>
-									<span
-										className={
-											isDone
-												? "flex h-5 w-5 flex-none items-center justify-center rounded-full bg-success text-bg"
-												: isCurrent
-													? "flex h-5 w-5 flex-none items-center justify-center rounded-full border border-text/15 bg-bg-secondary text-text"
-													: "flex h-5 w-5 flex-none items-center justify-center rounded-full border border-border bg-bg text-text-secondary/70"
-										}
-									>
-										{isDone ? (
-											<Check className="h-3.5 w-3.5" />
-										) : isCurrent ? (
-											<LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-										) : (
-											<span className="h-2 w-2 rounded-full bg-current" />
-										)}
-									</span>
-									<span>{label}</span>
-								</div>
-							);
-						})}
-					</div>
-				</WorkflowStep>
-			) : null}
-
-			{stage === "done" && completedTx ? (
-				<WorkflowStep state="active" stepLabel="Step 6" title="Funds arrived">
-					<div className="space-y-4 text-sm">
-						<div className="rounded-3xl bg-success/8 px-4 py-4">
-							<div className="font-serif text-2xl">
-								{formatAmount(parsedAmount)} {currency}
-							</div>
-							<p className="mt-2 text-text-secondary">Now on Arc.</p>
-						</div>
-
-						<div className="space-y-2">
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Confirmed in</span>
-								<span>{(completedTx.confirmationMs / 1000).toFixed(2)}s</span>
-							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Block</span>
-								<span>#{completedTx.blockNumber.toLocaleString()}</span>
-							</div>
-							<div className="flex justify-between gap-4">
-								<span className="text-text-secondary">Transaction</span>
-								<a
-									className="cursor-pointer truncate transition-colors hover:text-text"
-									href={`${ARC.explorer}/tx/${completedTx.txHash}`}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									{completedTx.txHash.slice(0, 14)}...
-								</a>
-							</div>
-						</div>
-
-						<button
-							className="w-full cursor-pointer rounded-full bg-text py-3 font-medium text-bg transition-opacity hover:opacity-90"
-							onClick={onClose}
-							type="button"
-						>
-							Back to dashboard
-						</button>
-					</div>
+					{depositResolutionContent}
 				</WorkflowStep>
 			) : null}
 		</WorkflowShell>
 	);
+}
+
+async function runBridge({
+	arcNative,
+	progress,
+	transactionId,
+}: {
+	arcNative: boolean;
+	progress: ReturnType<typeof api.deposit.progress.useMutation>;
+	transactionId: string;
+}) {
+	if (arcNative) {
+		const arcPairDelays = [400, 500, 400, 500];
+		let result: Awaited<ReturnType<typeof progress.mutateAsync>> | null = null;
+
+		for (let visualStep = 0; visualStep < 2; visualStep++) {
+			await delay(arcPairDelays[visualStep * 2] ?? 400);
+			result = await progress.mutateAsync({ transactionId });
+			await delay(arcPairDelays[visualStep * 2 + 1] ?? 500);
+			result = await progress.mutateAsync({ transactionId });
+		}
+
+		if (!result) {
+			throw new Error("Arc credit did not return a transaction.");
+		}
+
+		return result;
+	}
+
+	const cctpDelays = [250, 250, 3000, 1000];
+	let result: Awaited<ReturnType<typeof progress.mutateAsync>> | null = null;
+
+	for (let index = 0; index < 4; index++) {
+		await delay(cctpDelays[index] ?? 1000);
+		result = await progress.mutateAsync({ transactionId });
+	}
+
+	if (!result) {
+		throw new Error("Bridge progress did not return a transaction.");
+	}
+
+	return result;
+}
+
+function formatCurrencyAmount(amount: number, currency: string) {
+	if (currency === "USDC") return `$${formatAmount(amount)}`;
+	if (currency === "EURC") return `€${formatAmount(amount)}`;
+	if (currency === "JPYC") {
+		return `¥${Math.round(amount).toLocaleString("en-US", {
+			maximumFractionDigits: 0,
+		})}`;
+	}
+
+	return `${formatAmount(amount)} ${currency}`;
+}
+
+function formatAmountInputForDisplay(value: string) {
+	if (!value) return "";
+
+	const [rawIntegerPart = "", fractionalPart] = value.split(".");
+	const integerPart = rawIntegerPart === "" ? "0" : rawIntegerPart;
+	const formattedIntegerPart = Number.parseInt(integerPart, 10).toLocaleString(
+		"en-US",
+	);
+
+	if (fractionalPart == null) {
+		return formattedIntegerPart;
+	}
+
+	return `${formattedIntegerPart}.${fractionalPart}`;
+}
+
+function convertFromUsdcTarget({
+	targetUsdcAmount,
+	depositCurrency,
+}: {
+	targetUsdcAmount: number;
+	depositCurrency: string;
+}) {
+	const rateToUsdc = FX_RATES[depositCurrency];
+	if (rateToUsdc == null || rateToUsdc <= 0) {
+		return targetUsdcAmount;
+	}
+
+	const convertedAmount = targetUsdcAmount / rateToUsdc;
+	if (depositCurrency === "JPYC") {
+		return Math.round(convertedAmount);
+	}
+
+	return Number(convertedAmount.toFixed(2));
+}
+
+function formatRate(quote: StableFxQuoteSnapshot) {
+	return `1 ${quote.fromCurrency} = ${quote.rate.toLocaleString("en-US", {
+		minimumFractionDigits: 4,
+		maximumFractionDigits: 4,
+	})} ${quote.toCurrency}`;
+}
+
+function ReviewCurrencyLeg({
+	amount,
+	currency,
+	label,
+}: {
+	amount: number;
+	currency: string;
+	label: string;
+}) {
+	const iconSrc = getStablecoinIconSrc(currency);
+
+	return (
+		<div className="flex items-center justify-between gap-4 rounded-[1.2rem] bg-bg-secondary/70 px-4 py-4">
+			<div>
+				<div className="text-sm text-text-secondary">{label}</div>
+				<div className="mt-2 inline-flex items-center gap-2 rounded-full border border-border bg-bg px-3 py-1.5 text-sm text-text">
+					{iconSrc ? (
+						<Image
+							alt=""
+							aria-hidden
+							className="h-4 w-4 shrink-0"
+							height={16}
+							src={iconSrc}
+							unoptimized
+							width={16}
+						/>
+					) : null}
+					<span className="font-medium">{currency}</span>
+				</div>
+			</div>
+			<div className="text-right font-serif text-[2rem] text-text leading-none sm:text-[2.3rem]">
+				{formatCurrencyAmount(amount, currency)}
+			</div>
+		</div>
+	);
+}
+
+function RateRefreshIndicator({
+	countdownSeconds,
+	isRefreshing,
+}: {
+	countdownSeconds: number | null;
+	isRefreshing: boolean;
+}) {
+	return (
+		<div className="flex min-h-8 min-w-8 items-center justify-center rounded-full px-2.5 text-text-secondary text-xs">
+			{isRefreshing ? (
+				<LoaderCircle className="h-3.5 w-3.5 animate-spin text-text" />
+			) : (
+				<span>{countdownSeconds ?? 0}s</span>
+			)}
+		</div>
+	);
+}
+
+function getStablecoinIconSrc(currency: string) {
+	if (currency === "USDC") return "/usdc.svg";
+	if (currency === "EURC") return "/eurc.svg";
+	if (currency === "JPYC") return "/jpyc.svg";
+
+	return null;
 }

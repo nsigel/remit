@@ -6,6 +6,7 @@ export const CCTP_CHAINS = [
 	{ domain: 3, name: "Arbitrum", popular: true },
 	{ domain: 2, name: "OP Mainnet", popular: true },
 	{ domain: 7, name: "Polygon PoS", popular: true },
+	{ domain: 26, name: "Arc", popular: true },
 	{ domain: 1, name: "Avalanche", popular: false },
 	{ domain: 17, name: "BNB Smart Chain", popular: false },
 	{ domain: 12, name: "Codex", popular: false },
