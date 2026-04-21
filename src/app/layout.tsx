@@ -9,7 +9,7 @@ import { ThemeProvider } from "~/lib/theme";
 export const metadata: Metadata = {
 	title: "Remit",
 	description: "Tuition payments, settled in under a second",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
+	icons: [{ rel: "icon", type: "image/svg+xml", url: "/favicon.svg" }],
 };
 
 const geist = Geist({
