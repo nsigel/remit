@@ -84,7 +84,7 @@ export type DepositStep = (typeof DEPOSIT_STEPS)[number];
 
 // University seed data
 export const SEED_UNIVERSITY = {
-	name: "Meridian University",
+	name: "USC",
 	walletAddress: "0x4d657269dian00000000000000000000000000000",
 } as const;
 

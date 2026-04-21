@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useDemoSession } from "~/lib/demo-session";
 import {
 	STABLEFX_TOTAL_DURATION_MS,
 	type StableFxQuoteSnapshot,
 } from "~/lib/stablefx";
-import { api } from "~/trpc/react";
 import { SwapOutcomeCard } from "./swap-outcome-card";
 import { useStableFxQuote } from "./use-stablefx-quote";
 import { WorkflowShell } from "./workflow-shell";
@@ -30,7 +30,7 @@ export function SwapWorkflow({
 	onClose,
 	onLockChange,
 }: SwapWorkflowProps) {
-	const utils = api.useUtils();
+	const { actions, selectors } = useDemoSession();
 	const [stage, setStage] = useState<SwapStage>("input");
 	const [currency, setCurrency] = useState<string | null>(null);
 	const [amount, setAmount] = useState("");
@@ -41,11 +41,7 @@ export function SwapWorkflow({
 	);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const { data } = api.student.dashboard.useQuery(undefined, {
-		refetchOnMount: "always",
-	});
-	const initiate = api.swap.initiate.useMutation();
-	const confirm = api.swap.confirm.useMutation();
+	const data = selectors.dashboard();
 
 	const swappableBalances = useMemo(
 		() =>
@@ -103,28 +99,19 @@ export function SwapWorkflow({
 		onLockChange(true);
 
 		try {
-			const transaction = await initiate.mutateAsync({
+			await delay(STABLEFX_TOTAL_DURATION_MS);
+
+			const result = actions.commitSwap({
 				fromAmount: parsedAmount,
 				fromCurrency: currency,
 				quote: lockedQuote,
 				toCurrency: "USDC",
 			});
 
-			await delay(STABLEFX_TOTAL_DURATION_MS);
-
-			const completed = await confirm.mutateAsync({
-				transactionId: transaction.id,
-			});
-
 			setCompletedSwap({
-				txHash: completed.txHash,
-				confirmationMs: completed.confirmationMs,
+				txHash: result.transaction.txHash,
+				confirmationMs: result.transaction.confirmationMs,
 			});
-
-			await Promise.all([
-				utils.student.dashboard.invalidate(),
-				utils.transaction.list.invalidate(),
-			]);
 
 			setStage("done");
 			onLockChange(false);
@@ -321,7 +308,7 @@ export function SwapWorkflow({
 
 						<button
 							className="w-full cursor-pointer rounded-full bg-text py-3 font-medium text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-							disabled={!activeQuote || initiate.isPending || confirm.isPending}
+							disabled={!activeQuote}
 							onClick={handleStartSwap}
 							type="button"
 						>

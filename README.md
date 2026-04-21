@@ -4,6 +4,8 @@ Tuition payments, settled in under a second.
 
 Remit is a tuition payment portal built on [Arc](https://arc.network), Circle's L1 blockchain purpose-built for stablecoin finance. Students can deposit from any chain, swap currencies on-chain, and pay tuition with sub-second deterministic finality -- all with zero gas costs.
 
+This demo now runs entirely in the browser. Student state is stored in `sessionStorage`, so it survives refreshes in the same tab or window session but does not sync to a new tab or browser context.
+
 ## What it demonstrates
 
 | Feature | What it proves |
@@ -20,18 +22,17 @@ Remit is a tuition payment portal built on [Arc](https://arc.network), Circle's 
 1. **Landing** (`/`) -- value proposition and speed/cost/reach comparison
 2. **Create account** (`/demo`) -- enter a name, get a Smart Contract Account on Arc
 3. **Dashboard** (`/dashboard`) -- balances, invoices, quick actions
-4. **Deposit** (`/dashboard/deposit`) -- pick a source chain from 27 CCTP-supported networks, watch the 4-step bridge animation (approve, burn, attest, mint)
-5. **Pay tuition** (`/dashboard/pay/[id]`) -- confirm payment, see sub-second finality receipt
-6. **Swap** (`/dashboard/swap`) -- convert EURC/JPYC to USDC via StableFX with a savings comparison panel
+4. **Deposit** (`/dashboard`) -- open the inline deposit workflow, pick a source chain, and watch the bridge timeline resolve into wallet balances
+5. **Pay tuition** (`/dashboard`) -- confirm the current balance payment directly from the dashboard
+6. **Swap** (`/dashboard`) -- convert EURC/JPYC to USDC via StableFX with the inline swap workflow
 7. **University view** (`/university`) -- incoming payments, settlement stats
 
-All blockchain operations are mocked via database for the demo. No real transactions are executed.
+All blockchain operations are mocked in browser session state. No real transactions are executed.
 
 ## Stack
 
 - **Next.js 15** with App Router
-- **tRPC 11** for type-safe API
-- **Prisma** with SQLite
+- **Browser session state** via `sessionStorage`
 - **Tailwind CSS 4**
 - **TypeScript**
 
@@ -39,11 +40,16 @@ All blockchain operations are mocked via database for the demo. No real transact
 
 ```bash
 npm install
-npx prisma db push
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+## Persistence model
+
+- Reloading the same tab keeps the active student, balances, invoices, and activity history.
+- Reset clears the current browser session and returns the app to the landing page.
+- Opening a new tab or a fresh browser context starts empty.
 
 ## SCBC Hackathon 2026
 

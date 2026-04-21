@@ -1,7 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const databaseUrl = "file:./playwright.sqlite";
-
 export default defineConfig({
 	testDir: "./tests/e2e",
 	fullyParallel: false,
@@ -10,7 +8,6 @@ export default defineConfig({
 	expect: {
 		timeout: 15_000,
 	},
-	globalSetup: "./tests/e2e/global-setup.ts",
 	outputDir: "output/playwright/test-results",
 	reporter: [
 		["list"],
@@ -43,9 +40,5 @@ export default defineConfig({
 		timeout: 120_000,
 		stdout: "pipe",
 		stderr: "pipe",
-		env: {
-			...process.env,
-			DATABASE_URL: databaseUrl,
-		},
 	},
 });

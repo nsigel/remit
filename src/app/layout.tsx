@@ -2,8 +2,9 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
+import { Toaster } from "sonner";
+import { DemoSessionProvider } from "~/lib/demo-session";
 import { ThemeProvider } from "~/lib/theme";
-import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
 	title: "Remit",
@@ -33,7 +34,18 @@ export default function RootLayout({
 		>
 			<body className="font-sans">
 				<ThemeProvider>
-					<TRPCReactProvider>{children}</TRPCReactProvider>
+					<DemoSessionProvider>{children}</DemoSessionProvider>
+					<Toaster
+						position="top-center"
+						richColors
+						toastOptions={{
+							classNames: {
+								toast: "rounded-full px-3.5 py-2 text-sm shadow-sm",
+								title: "text-[0.82rem]",
+							},
+						}}
+						visibleToasts={1}
+					/>
 				</ThemeProvider>
 			</body>
 		</html>

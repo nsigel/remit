@@ -76,7 +76,11 @@ export const studentRouter = createTRPCRouter({
 	}),
 
 	dashboard: studentProcedure.query(async ({ ctx }) => {
-		const [balances, invoices, transactions] = await Promise.all([
+		const [student, balances, invoices, transactions] = await Promise.all([
+			ctx.db.student.findUniqueOrThrow({
+				where: { id: ctx.student.id },
+				include: { university: true },
+			}),
 			ctx.db.balance.findMany({
 				where: { studentId: ctx.student.id },
 			}),
@@ -92,7 +96,7 @@ export const studentRouter = createTRPCRouter({
 		]);
 
 		return {
-			student: ctx.student,
+			student,
 			balances: ensureWalletBalances(balances),
 			invoices,
 			transactions,

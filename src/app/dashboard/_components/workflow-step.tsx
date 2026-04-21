@@ -28,7 +28,7 @@ export function WorkflowStep({
 	const stepCounter = stepLabel.match(/\d+/)?.[0] ?? stepLabel;
 
 	return (
-		<section className="border-border border-t pt-4 first:border-t-0 first:pt-0">
+		<section className="pt-4 first:pt-0">
 			<div className="flex items-start justify-between gap-4">
 				<div className="flex min-w-0 items-center gap-3">
 					<span

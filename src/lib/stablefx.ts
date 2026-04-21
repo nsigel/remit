@@ -3,6 +3,7 @@ import { FX_RATES, STABLEFX_SPREAD } from "./constants";
 export const STABLEFX_BENCHMARK_SPREAD = 0.051;
 export const STABLEFX_REVIEW_REFRESH_MS = 5000;
 export const STABLEFX_REVIEW_REFRESH_SPINNER_MS = 700;
+export const STABLEFX_REVIEW_VARIANCE_BPS = 14;
 
 export const STABLEFX_PHASE_DURATIONS_MS = {
 	querying: 500,
@@ -38,6 +39,20 @@ export function getStableFxBaseRate(
 	}
 
 	return fromRate / toRate;
+}
+
+export function getStableFxGuaranteedRate(
+	fromCurrency: string,
+	toCurrency: string,
+	varianceBps = STABLEFX_REVIEW_VARIANCE_BPS,
+): number | null {
+	const baseRate = getStableFxBaseRate(fromCurrency, toCurrency);
+	if (baseRate == null) return null;
+
+	const quotedRate = normalizeNumber(baseRate * (1 - STABLEFX_SPREAD), 6);
+	const minimumRate = floorNumber(quotedRate * (1 - varianceBps / 10_000), 6);
+
+	return minimumRate > 0 ? minimumRate : null;
 }
 
 export function buildStableFxQuoteSnapshot({
@@ -76,7 +91,7 @@ export function buildStableFxQuoteSnapshot({
 export function buildStableFxQuoteSeries({
 	snapshot,
 	steps = 7,
-	varianceBps = 14,
+	varianceBps = STABLEFX_REVIEW_VARIANCE_BPS,
 }: {
 	snapshot: StableFxQuoteSnapshot;
 	steps?: number;
@@ -155,4 +170,9 @@ function buildSeed(value: string) {
 
 function normalizeNumber(value: number, digits: number) {
 	return Number(value.toFixed(digits));
+}
+
+function floorNumber(value: number, digits: number) {
+	const multiplier = 10 ** digits;
+	return Math.floor(value * multiplier) / multiplier;
 }

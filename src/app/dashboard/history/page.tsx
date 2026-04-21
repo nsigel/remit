@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ARC } from "~/lib/constants";
-import { api } from "~/trpc/react";
+import { useDemoSession } from "~/lib/demo-session";
 import { ThemeToggle } from "../../_components/theme-toggle";
 import { DashboardHeader } from "../_components/dashboard-header";
 import {
@@ -14,10 +15,17 @@ import {
 type Filter = "all" | "DEPOSIT" | "PAYMENT" | "SWAP";
 
 export default function HistoryPage() {
+	const router = useRouter();
+	const { hasSession, selectors, status } = useDemoSession();
 	const [filter, setFilter] = useState<Filter>("all");
-	const { data: transactions, isLoading } = api.transaction.list.useQuery(
-		filter === "all" ? undefined : { type: filter },
-	);
+
+	useEffect(() => {
+		if (status !== "ready" || hasSession) return;
+		router.replace("/demo");
+	}, [hasSession, router, status]);
+
+	const transactions =
+		filter === "all" ? selectors.transactions() : selectors.transactions(filter);
 
 	const filters: { label: string; value: Filter }[] = [
 		{ label: "All", value: "all" },
@@ -25,6 +33,18 @@ export default function HistoryPage() {
 		{ label: "Payments", value: "PAYMENT" },
 		{ label: "Swaps", value: "SWAP" },
 	];
+
+	if (status !== "ready") {
+		return (
+			<main className="flex min-h-dvh items-center justify-center">
+				<span className="text-text-secondary">Loading...</span>
+			</main>
+		);
+	}
+
+	if (!hasSession) {
+		return null;
+	}
 
 	return (
 		<main className="min-h-dvh">
@@ -50,9 +70,7 @@ export default function HistoryPage() {
 					))}
 				</div>
 
-				{isLoading ? (
-					<p className="text-text-secondary">Loading...</p>
-				) : !transactions || transactions.length === 0 ? (
+				{transactions.length === 0 ? (
 					<p className="text-text-secondary">No activity yet.</p>
 				) : (
 					<div className="divide-y divide-border">
