@@ -8,6 +8,8 @@
 # testing
 /coverage
 /output/
+/playwright-report/
+/test-results/
 
 # database
 /prisma/db.sqlite
@@ -40,6 +42,11 @@ yarn-error.log*
 # do not commit any .env files to git, except for the .env.example file. https://create.t3.gg/en/usage/env-variables#using-environment-variables
 .env
 .env*.local
+
+# local agent and generated assets
+/AGENTS.md
+/generated/
+/prisma/
 
 # vercel
 .vercel
