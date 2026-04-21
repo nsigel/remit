@@ -8,6 +8,7 @@
 # testing
 /coverage
 /output/
+/.playwright-cli/
 /playwright-report/
 /test-results/
 
