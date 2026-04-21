@@ -24,12 +24,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		const stored = localStorage.getItem("remit-theme") as Theme | null;
-		const preferred =
-			stored ??
-			(window.matchMedia("(prefers-color-scheme: dark)").matches
-				? "dark"
-				: "light");
-		setTheme(preferred);
+		setTheme(stored ?? "light");
 		setMounted(true);
 	}, []);
 
