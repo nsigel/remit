@@ -33,8 +33,8 @@ export function DepositOutcomeCard({
 	if (autoSwap && quote) {
 		return (
 			<SwapOutcomeCard
-				context="deposit"
 				confirmationMs={confirmationMs}
+				context="deposit"
 				fromAmount={depositAmount}
 				fromCurrency={depositCurrency}
 				quote={quote}

@@ -10,7 +10,7 @@ import {
 import { formatAmount } from "./workflow-utils";
 
 type SwapOutcomeCardProps = {
-	status: "pending" | "active" | "complete";
+	status: "pending" | "paused" | "active" | "complete";
 	fromAmount: number;
 	fromCurrency: string;
 	toAmount: number;
@@ -20,6 +20,9 @@ type SwapOutcomeCardProps = {
 	txHash?: string | null;
 	context?: "standalone" | "deposit";
 	sourceChainName?: string;
+	statusLine?: string;
+	supportingLine?: string;
+	linkLabel?: string;
 };
 
 type SwapPhase = "querying" | "rate" | "conversion" | "savings";
@@ -35,6 +38,9 @@ export function SwapOutcomeCard({
 	txHash,
 	context = "standalone",
 	sourceChainName,
+	statusLine,
+	supportingLine,
+	linkLabel = "View transaction",
 }: SwapOutcomeCardProps) {
 	const [phase, setPhase] = useState<SwapPhase>("savings");
 	const showConfirmedMetrics =
@@ -86,7 +92,7 @@ export function SwapOutcomeCard({
 				key={`${status}-${phase}`}
 				transition={{ duration: 0.18, ease: "easeOut" }}
 			>
-				{buildStatusLine({ context, phase, status, toCurrency })}
+				{statusLine ?? buildStatusLine({ context, phase, status, toCurrency })}
 			</motion.p>
 
 			<div className="mt-3 font-serif text-[2.65rem] text-text leading-none sm:text-[2.9rem]">
@@ -94,13 +100,14 @@ export function SwapOutcomeCard({
 			</div>
 
 			<p className="mt-3 max-w-md text-sm text-text-secondary">
-				{buildSupportingLine({
-					context,
-					fromAmount,
-					fromCurrency,
-					sourceChainName,
-					toCurrency,
-				})}
+				{supportingLine ??
+					buildSupportingLine({
+						context,
+						fromAmount,
+						fromCurrency,
+						sourceChainName,
+						toCurrency,
+					})}
 			</p>
 
 			{showConfirmedMetrics ? (
@@ -157,7 +164,7 @@ export function SwapOutcomeCard({
 						rel="noopener noreferrer"
 						target="_blank"
 					>
-						View transaction
+						{linkLabel}
 					</a>
 				) : null}
 			</div>
@@ -205,6 +212,10 @@ function buildStatusLine({
 
 	if (status === "pending") {
 		return `Expected in your Remit wallet as ${toCurrency}.`;
+	}
+
+	if (status === "paused") {
+		return `Preparing live Arc settlement in ${toCurrency}.`;
 	}
 
 	if (phase === "querying") {

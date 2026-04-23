@@ -7,8 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import type { DemoActiveEscrowPlan } from "~/lib/demo-model";
 import { ARC } from "~/lib/constants";
+import type { DemoActiveEscrowPlan } from "~/lib/demo-model";
 import { useDemoSession } from "~/lib/demo-session";
 import { getPaymentPower } from "~/lib/payment-plan";
 import { useTheme } from "~/lib/theme";
@@ -332,7 +332,7 @@ export function DashboardClient() {
 														aria-hidden="true"
 														className="inline-block h-1.5 w-1.5 rounded-full bg-text"
 													/>
-													Live FX via StableFX
+													StableFX surface with live Arc settlement
 													<span className="mx-0.5">&middot;</span>
 													<CircleLogo />
 												</div>
@@ -637,13 +637,18 @@ function TransactionMeta({
 		fromCurrency?: string | null;
 		toCurrency?: string | null;
 		toAmount?: number | null;
+		provenance?: "mock" | "live";
 	};
 }) {
 	const autoSwapDeposit = isAutoSwapDeposit(tx);
+	const isLiveTransaction = tx.provenance === "live";
 
 	return (
 		<div className="mt-1 grid gap-1 text-text-secondary text-xs">
-			{autoSwapDeposit ? <div>Settled in USDC via StableFX</div> : null}
+			<div className="flex flex-wrap items-center gap-2">
+				{isLiveTransaction ? <LiveArcMarker /> : null}
+				{autoSwapDeposit ? <span>Settled in USDC via StableFX</span> : null}
+			</div>
 			<div className="flex flex-wrap items-center gap-2">
 				{autoSwapDeposit ? (
 					<>
@@ -673,6 +678,14 @@ function TransactionMeta({
 				) : null}
 			</div>
 		</div>
+	);
+}
+
+function LiveArcMarker() {
+	return (
+		<span className="inline-flex rounded-full border border-border px-2 py-0.5 text-[11px] text-text-secondary">
+			Live on Arc
+		</span>
 	);
 }
 

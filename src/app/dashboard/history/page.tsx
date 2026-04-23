@@ -25,7 +25,9 @@ export default function HistoryPage() {
 	}, [hasSession, router, status]);
 
 	const transactions =
-		filter === "all" ? selectors.transactions() : selectors.transactions(filter);
+		filter === "all"
+			? selectors.transactions()
+			: selectors.transactions(filter);
 
 	const filters: { label: string; value: Filter }[] = [
 		{ label: "All", value: "all" },
@@ -89,9 +91,12 @@ export default function HistoryPage() {
 										)}
 									</div>
 									<div className="mt-1 grid gap-1 text-text-secondary text-xs">
-										{isAutoSwapDeposit(tx) ? (
-											<div>Settled in USDC via StableFX</div>
-										) : null}
+										<div className="flex flex-wrap items-center gap-2">
+											{tx.provenance === "live" ? <LiveArcMarker /> : null}
+											{isAutoSwapDeposit(tx) ? (
+												<div>Settled in USDC via StableFX</div>
+											) : null}
+										</div>
 										<div className="flex flex-wrap items-center gap-2">
 											<span>
 												{new Date(tx.createdAt).toLocaleDateString("en-US", {
@@ -161,6 +166,14 @@ export default function HistoryPage() {
 				)}
 			</div>
 		</main>
+	);
+}
+
+function LiveArcMarker() {
+	return (
+		<span className="inline-flex rounded-full border border-border px-2 py-0.5 text-[11px] text-text-secondary">
+			Live on Arc
+		</span>
 	);
 }
 

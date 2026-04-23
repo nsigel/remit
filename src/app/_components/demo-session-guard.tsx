@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { useDemoSession } from "~/lib/demo-session";
 
 export function RedirectIfDemoSession({

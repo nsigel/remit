@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useDemoSession } from "~/lib/demo-session";
+import type { LiveBootstrapResponse } from "~/lib/live-demo";
 
 const DEFAULT_STUDENT_NAME = "Student";
 
@@ -24,12 +25,32 @@ export function DemoClient() {
 		hasAutoCreatedRef.current = true;
 		setCreating(true);
 
-		try {
-			const session = actions.createStudent(DEFAULT_STUDENT_NAME);
-			setWalletAddress(session.student.walletAddress);
-		} finally {
-			setCreating(false);
-		}
+		void (async () => {
+			try {
+				const liveEnabled =
+					process.env.NEXT_PUBLIC_REMIT_LIVE_ENABLED === "true";
+				let liveWallet: LiveBootstrapResponse | null = null;
+
+				if (liveEnabled) {
+					const response = await fetch("/api/demo/live/bootstrap", {
+						method: "POST",
+					});
+					if (response.ok) {
+						liveWallet = (await response.json()) as LiveBootstrapResponse;
+					}
+				}
+
+				const session = actions.createStudent(DEFAULT_STUDENT_NAME, {
+					walletAddress: liveWallet?.walletAddress,
+					walletMode: liveWallet?.walletMode,
+					circleWalletId: liveWallet?.circleWalletId,
+					liveCapabilities: liveWallet?.liveCapabilities,
+				});
+				setWalletAddress(session.student.walletAddress);
+			} finally {
+				setCreating(false);
+			}
+		})();
 	}, [actions, hasSession, status, walletAddress]);
 
 	if (status !== "ready" || creating) {

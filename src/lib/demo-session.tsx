@@ -8,33 +8,40 @@ import {
 	useState,
 } from "react";
 import {
-  type AdvancePaymentPlanInstallmentResult,
+	type AdvancePaymentPlanInstallmentResult,
+	advancePaymentPlanInstallment as advancePaymentPlanInstallmentInSession,
 	type CommitDepositInput,
 	type CommitDepositResult,
+	type CommitLiveSwapInput,
+	type CommitLiveSwapResult,
 	type CommitSwapInput,
 	type CommitSwapResult,
-  type CreatePaymentPlanEscrowInput,
-  type CreatePaymentPlanEscrowResult,
+	type CreateDemoStudentOptions,
+	type CreatePaymentPlanEscrowInput,
+	type CreatePaymentPlanEscrowResult,
 	type CurrentBalanceView,
-  advancePaymentPlanInstallment as advancePaymentPlanInstallmentInSession,
 	commitDeposit as commitDepositToSession,
+	commitLiveSwap as commitLiveSwapInSession,
 	commitSwap as commitSwapToSession,
 	createInitialDemoSession,
-  createPaymentPlanEscrow as createPaymentPlanEscrowInSession,
+	createPaymentPlanEscrow as createPaymentPlanEscrowInSession,
 	type DashboardView,
 	DEMO_SESSION_STORAGE_KEY,
-  type DemoActiveEscrowPlan,
+	type DemoActiveEscrowPlan,
 	type DemoSessionState,
 	type DemoTransaction,
 	type DemoTransactionType,
 	deserializeDemoSession,
-  getActiveEscrowPlan,
+	getActiveEscrowPlan,
 	getCurrentBalanceView,
 	getDashboardView,
 	getTransactions,
 	getUniversityDashboardView,
 	type PayCurrentBalanceResult,
 	payCurrentBalance as payCurrentBalanceInSession,
+	type RecordLiveTopupInput,
+	type RecordLiveTopupResult,
+	recordLiveTopup as recordLiveTopupInSession,
 	resetDemoSession,
 	serializeDemoSession,
 	type UniversityDashboardView,
@@ -45,22 +52,27 @@ type DemoSessionContextValue = {
 	session: DemoSessionState | null;
 	hasSession: boolean;
 	actions: {
-		createStudent: (name: string) => DemoSessionState;
+		createStudent: (
+			name: string,
+			options?: CreateDemoStudentOptions,
+		) => DemoSessionState;
 		reset: () => void;
 		commitDeposit: (input: CommitDepositInput) => CommitDepositResult;
 		commitSwap: (input: CommitSwapInput) => CommitSwapResult;
+		recordLiveTopup: (input: RecordLiveTopupInput) => RecordLiveTopupResult;
+		commitLiveSwap: (input: CommitLiveSwapInput) => CommitLiveSwapResult;
 		payCurrentBalance: (amount?: number) => PayCurrentBalanceResult;
-    createPaymentPlanEscrow: (
-      input: CreatePaymentPlanEscrowInput,
-    ) => CreatePaymentPlanEscrowResult;
-    advancePaymentPlanInstallment: () => AdvancePaymentPlanInstallmentResult;
+		createPaymentPlanEscrow: (
+			input: CreatePaymentPlanEscrowInput,
+		) => CreatePaymentPlanEscrowResult;
+		advancePaymentPlanInstallment: () => AdvancePaymentPlanInstallmentResult;
 	};
 	selectors: {
 		dashboard: () => DashboardView | null;
 		currentBalance: () => CurrentBalanceView | null;
 		transactions: (filter?: DemoTransactionType) => DemoTransaction[];
 		university: () => UniversityDashboardView | null;
-    activeEscrowPlan: () => DemoActiveEscrowPlan | null;
+		activeEscrowPlan: () => DemoActiveEscrowPlan | null;
 	};
 };
 
@@ -121,8 +133,8 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
 		session,
 		hasSession: session != null,
 		actions: {
-			createStudent: (name) => {
-				const nextSession = createInitialDemoSession(name);
+			createStudent: (name, options) => {
+				const nextSession = createInitialDemoSession(name, options);
 				persistSession(nextSession);
 				setSession(nextSession);
 				return nextSession;
@@ -158,6 +170,32 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
 				}
 				return result;
 			},
+			recordLiveTopup: (input) => {
+				let result: RecordLiveTopupResult | null = null;
+				setSession((current) => {
+					if (!current) return current;
+					result = recordLiveTopupInSession(current, input);
+					persistSession(result.session);
+					return result.session;
+				});
+				if (!result) {
+					throw new Error("No demo session is active.");
+				}
+				return result;
+			},
+			commitLiveSwap: (input) => {
+				let result: CommitLiveSwapResult | null = null;
+				setSession((current) => {
+					if (!current) return current;
+					result = commitLiveSwapInSession(current, input);
+					persistSession(result.session);
+					return result.session;
+				});
+				if (!result) {
+					throw new Error("No demo session is active.");
+				}
+				return result;
+			},
 			payCurrentBalance: (amount) => {
 				let result: PayCurrentBalanceResult | null = null;
 				setSession((current) => {
@@ -171,39 +209,39 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
 				}
 				return result;
 			},
-      createPaymentPlanEscrow: (input) => {
-        let result: CreatePaymentPlanEscrowResult | null = null;
-        setSession((current) => {
-          if (!current) return current;
-          result = createPaymentPlanEscrowInSession(current, input);
-          persistSession(result.session);
-          return result.session;
-        });
-        if (!result) {
-          throw new Error("No demo session is active.");
-        }
-        return result;
-      },
-      advancePaymentPlanInstallment: () => {
-        let result: AdvancePaymentPlanInstallmentResult | null = null;
-        setSession((current) => {
-          if (!current) return current;
-          result = advancePaymentPlanInstallmentInSession(current);
-          persistSession(result.session);
-          return result.session;
-        });
-        if (!result) {
-          throw new Error("No demo session is active.");
-        }
-        return result;
-      },
+			createPaymentPlanEscrow: (input) => {
+				let result: CreatePaymentPlanEscrowResult | null = null;
+				setSession((current) => {
+					if (!current) return current;
+					result = createPaymentPlanEscrowInSession(current, input);
+					persistSession(result.session);
+					return result.session;
+				});
+				if (!result) {
+					throw new Error("No demo session is active.");
+				}
+				return result;
+			},
+			advancePaymentPlanInstallment: () => {
+				let result: AdvancePaymentPlanInstallmentResult | null = null;
+				setSession((current) => {
+					if (!current) return current;
+					result = advancePaymentPlanInstallmentInSession(current);
+					persistSession(result.session);
+					return result.session;
+				});
+				if (!result) {
+					throw new Error("No demo session is active.");
+				}
+				return result;
+			},
 		},
 		selectors: {
 			dashboard: () => getDashboardView(session),
 			currentBalance: () => getCurrentBalanceView(session),
 			transactions: (filter) => getTransactions(session, filter),
 			university: () => getUniversityDashboardView(session),
-      activeEscrowPlan: () => getActiveEscrowPlan(session),
+			activeEscrowPlan: () => getActiveEscrowPlan(session),
 		},
 	};
 
