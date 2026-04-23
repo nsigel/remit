@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ARC } from "~/lib/constants";
+import type { LiveSwapResponse } from "~/lib/live-demo";
 import {
 	STABLEFX_PHASE_DURATIONS_MS,
 	type StableFxQuoteSnapshot,
@@ -18,6 +19,7 @@ type SwapOutcomeCardProps = {
 	quote: StableFxQuoteSnapshot;
 	confirmationMs?: number;
 	txHash?: string | null;
+	liveResponse?: LiveSwapResponse;
 	context?: "standalone" | "deposit";
 	sourceChainName?: string;
 	statusLine?: string;
@@ -36,6 +38,7 @@ export function SwapOutcomeCard({
 	quote,
 	confirmationMs,
 	txHash,
+	liveResponse,
 	context = "standalone",
 	sourceChainName,
 	statusLine,
@@ -105,6 +108,7 @@ export function SwapOutcomeCard({
 						context,
 						fromAmount,
 						fromCurrency,
+						liveResponse,
 						sourceChainName,
 						toCurrency,
 					})}
@@ -157,10 +161,31 @@ export function SwapOutcomeCard({
 						{formatRate(quote.rate, quote.fromCurrency, quote.toCurrency)}
 					</span>
 				</div>
+				{status === "complete" && liveResponse ? (
+					<MetricRow
+						label={
+							liveResponse.fromAddress === liveResponse.toAddress
+								? "Wallet"
+								: "Submitted from"
+						}
+						value={shortenAddress(liveResponse.fromAddress)}
+					/>
+				) : null}
+				{status === "complete" &&
+				liveResponse &&
+				liveResponse.fromAddress !== liveResponse.toAddress ? (
+					<MetricRow
+						label="Delivered to"
+						value={shortenAddress(liveResponse.toAddress)}
+					/>
+				) : null}
+				{status === "complete" && txHash ? (
+					<MetricRow label="Transaction" value={shortenAddress(txHash)} />
+				) : null}
 				{status === "complete" && txHash ? (
 					<a
 						className="inline-flex text-sm text-text transition-colors hover:text-text-secondary"
-						href={`${ARC.explorer}/tx/${txHash}`}
+						href={liveResponse?.explorerUrl ?? `${ARC.explorer}/tx/${txHash}`}
 						rel="noopener noreferrer"
 						target="_blank"
 					>
@@ -241,15 +266,30 @@ function buildSupportingLine({
 	context,
 	fromAmount,
 	fromCurrency,
+	liveResponse,
 	sourceChainName,
 	toCurrency,
 }: {
 	context: SwapOutcomeCardProps["context"];
 	fromAmount: number;
 	fromCurrency: string;
+	liveResponse?: LiveSwapResponse;
 	sourceChainName?: string;
 	toCurrency: string;
 }) {
+	if (liveResponse) {
+		const submittedAmount = Number.parseFloat(liveResponse.amountIn);
+		const settledAmount = Number.parseFloat(liveResponse.amountOut ?? "");
+		const submittedValue = Number.isFinite(submittedAmount)
+			? formatCurrencyAmount(submittedAmount, liveResponse.tokenIn)
+			: `${liveResponse.amountIn} ${liveResponse.tokenIn}`;
+		const settledValue = Number.isFinite(settledAmount)
+			? formatCurrencyAmount(settledAmount, liveResponse.tokenOut)
+			: `your ${liveResponse.tokenOut} balance`;
+
+		return `Arc submitted ${submittedValue} from ${shortenAddress(liveResponse.fromAddress)} and settled ${settledValue}.`;
+	}
+
 	if (context === "deposit") {
 		return `${formatCurrencyAmount(fromAmount, fromCurrency)} from ${sourceChainName ?? "your source chain"}, converting into ${toCurrency} for your Remit wallet.`;
 	}
@@ -274,4 +314,8 @@ function formatRate(rate: number, fromCurrency: string, toCurrency: string) {
 		minimumFractionDigits: 4,
 		maximumFractionDigits: 4,
 	})} ${toCurrency}`;
+}
+
+function shortenAddress(address: string) {
+	return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }

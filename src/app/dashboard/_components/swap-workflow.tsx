@@ -32,6 +32,13 @@ type CompletedSwapState = {
 	txHash: string | null;
 	confirmationMs: number | null;
 	amountOut: number | null;
+	liveResponse: LiveSwapResponse | null;
+};
+
+type PendingSwapExecution = {
+	fromAmount: number;
+	fromCurrency: string;
+	quote: StableFxQuoteSnapshot;
 };
 
 const LIVE_UNPAUSE_TIMEOUT_MS = 12_000;
@@ -57,6 +64,7 @@ export function SwapWorkflow({
 
 	const stageRef = useRef<SwapStage>("input");
 	const hasFinalizedRef = useRef(false);
+	const pendingSwapRef = useRef<PendingSwapExecution | null>(null);
 	const animationTimerRef = useRef<number | null>(null);
 	const unpauseTimerRef = useRef<number | null>(null);
 	const swapStartedAtRef = useRef<number>(0);
@@ -123,6 +131,7 @@ export function SwapWorkflow({
 	const resetTransientState = () => {
 		clearAsyncTimers();
 		hasFinalizedRef.current = false;
+		pendingSwapRef.current = null;
 		setCompletedSwap(null);
 		setLiveSwapStatus("idle");
 		setCanUnpause(false);
@@ -150,22 +159,24 @@ export function SwapWorkflow({
 	};
 
 	const finalizeMockSwap = () => {
-		if (!currency || !processingQuote || hasFinalizedRef.current) return;
+		const execution = pendingSwapRef.current;
+		if (!execution || hasFinalizedRef.current) return;
 		hasFinalizedRef.current = true;
 		clearAsyncTimers();
 
 		try {
 			const result = actions.commitSwap({
-				fromAmount: parsedAmount,
-				fromCurrency: currency,
-				quote: processingQuote,
-				toCurrency: processingQuote.toCurrency,
+				fromAmount: execution.fromAmount,
+				fromCurrency: execution.fromCurrency,
+				quote: execution.quote,
+				toCurrency: execution.quote.toCurrency,
 			});
 
 			setCompletedSwap({
 				txHash: result.transaction.txHash,
 				confirmationMs: result.transaction.confirmationMs,
 				amountOut: result.transaction.toAmount,
+				liveResponse: null,
 			});
 			setStage("done");
 			onLockChange(false);
@@ -180,7 +191,8 @@ export function SwapWorkflow({
 	};
 
 	const finalizeLiveSwap = (liveResult: LiveSwapResponse) => {
-		if (!currency || !processingQuote || hasFinalizedRef.current) return;
+		const execution = pendingSwapRef.current;
+		if (!execution || hasFinalizedRef.current) return;
 		hasFinalizedRef.current = true;
 		clearAsyncTimers();
 
@@ -191,7 +203,7 @@ export function SwapWorkflow({
 		const resolvedAmountOut =
 			Number.isFinite(parsedOutput) && parsedOutput > 0
 				? parsedOutput
-				: processingQuote.toAmount;
+				: execution.quote.toAmount;
 		const confirmationMs = Math.max(
 			1,
 			Math.round(performance.now() - swapStartedAtRef.current),
@@ -199,19 +211,20 @@ export function SwapWorkflow({
 
 		try {
 			actions.commitLiveSwap({
-				fromCurrency: currency,
-				toCurrency: processingQuote.toCurrency,
-				fromAmount: parsedAmount,
+				fromCurrency: execution.fromCurrency,
+				toCurrency: execution.quote.toCurrency,
+				fromAmount: execution.fromAmount,
 				toAmount: resolvedAmountOut,
 				txHash: liveResult.txHash,
 				confirmationMs,
-				exchangeRate: resolvedAmountOut / parsedAmount,
+				exchangeRate: resolvedAmountOut / execution.fromAmount,
 			});
 
 			setCompletedSwap({
 				txHash: liveResult.txHash,
 				confirmationMs,
 				amountOut: resolvedAmountOut,
+				liveResponse: liveResult,
 			});
 			setStage("done");
 			onLockChange(false);
@@ -297,6 +310,11 @@ export function SwapWorkflow({
 
 		setErrorMessage(null);
 		resetTransientState();
+		pendingSwapRef.current = {
+			fromAmount: parsedAmount,
+			fromCurrency: currency,
+			quote: lockedQuote,
+		};
 		setProcessingQuote(lockedQuote);
 		swapStartedAtRef.current = performance.now();
 		onLockChange(true);
@@ -564,10 +582,15 @@ export function SwapWorkflow({
 									fromAmount={parsedAmount}
 									fromCurrency={currency ?? activeQuote.fromCurrency}
 									linkLabel="View transaction"
+									liveResponse={completedSwap?.liveResponse ?? undefined}
 									quote={activeQuote}
 									status="complete"
 									statusLine="Settled on Arc."
-									supportingLine="Live Arc settlement example. This shows the onchain settlement path StableFX enables at institutional scale."
+									supportingLine={
+										completedSwap?.liveResponse
+											? undefined
+											: "Live Arc settlement example. This shows the onchain settlement path StableFX enables at institutional scale."
+									}
 									toAmount={completedSwap?.amountOut ?? activeQuote.toAmount}
 									toCurrency={activeQuote.toCurrency}
 									txHash={completedSwap?.txHash}
@@ -599,6 +622,11 @@ export function SwapWorkflow({
 								context="standalone"
 								fromAmount={parsedAmount}
 								fromCurrency={currency ?? activeQuote.fromCurrency}
+								liveResponse={
+									stage === "done"
+										? (completedSwap?.liveResponse ?? undefined)
+										: undefined
+								}
 								quote={activeQuote}
 								status={
 									stage === "processing_paused"
@@ -619,7 +647,7 @@ export function SwapWorkflow({
 										? "StableFX flow paused while the live trade is submitted."
 										: stage === "processing_animating" && hasManuallyUnpaused
 											? "StableFX resumed while the live Arc trade catches up."
-											: stage === "done"
+											: stage === "done" && completedSwap?.liveResponse == null
 												? "Live Arc settlement example. This shows the onchain settlement path StableFX enables at institutional scale."
 												: undefined
 								}
